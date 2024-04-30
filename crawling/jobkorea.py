@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 
 def link_crawl(driver: webdriver.Chrome):
     array = []
-    f = open("C://data/jobkorea_link.txt", "w")
+    f = open("C:/data/jobkorea_link.txt", "w")
     for i in range(1, 369):
         driver.get(
             "https://www.jobkorea.co.kr/starter/passassay?schTxt=&Page=" + str(i)
