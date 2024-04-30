@@ -1,51 +1,87 @@
-# linkareer.py
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+import json
 
-def url_crawl(driver:webdriver.Chrome):
+
+def url_crawl(driver: webdriver.Chrome):
     url_list = []
-    f=open("C://data/linkcareer_link.txt",'w')
-    for page in range(1,573):
-        url = "https://linkareer.com/cover-letter/search?page="+str(page)+"&tab=all"
+    f = open("C:/Users/hancomtst/Desktop/Link.txt", "w")
+    for page in range(1, 573):
+        url = (
+            "https://linkareer.com/cover-letter/search?page="
+            + str(page)
+            + "&sort=SCRAP_COUNT&tab=all"
+        )
         driver.get(url)
-        driver.find_element(By.XPATH,"/html/body/div[1]/div[1]/div/div[4]/div[2]/div/div[3]/div[1]")
         driver.implicitly_wait(3)
-        url_tag = driver.find_elements(By.TAG_NAME,'a')
-        for tag in url_tag:
-            url_name = tag.get_attribute('href')
+        url_tags = driver.find_elements(By.TAG_NAME, "a")
+        for tag in url_tags:
+            url_name = tag.get_attribute("href")
             if "cover-letter" in url_name and "search" not in url_name:
-                print(url_name)
                 url_list.append(url_name)
     driver.close()
-    for content in list(set(url_list)):
-        f.write(content+"\n")
+    # Writing unique URLs to file
+    unique_urls = set(url_list)
+    for content in unique_urls:
+        f.write(content + "\n")
     f.close()
 
-def self_introduction(driver:webdriver.Chrome,url):
+
+def self_introduction(driver, url):
     person = {}
     driver.get(url)
-    info = driver.find_element(By.XPATH,'//*[@id="__next"]/div[1]/div[4]/div/div[2]/div[1]/div[1]/div/div/div[2]/h1')
-    specification=driver.find_element(By.XPATH,'//*[@id="__next"]/div[1]/div[4]/div/div[2]/div[1]/div[1]/div/div/div[3]/p')
-    content=driver.find_element(By.ID,"coverLetterContent")
-    person['info'] = info.text # 지원자 정보
-    person['specification'] = specification.text # 지원자 스펙
-    person['self_intro'] = content.text # 지원자 자소서
-    print(person)
+    info = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located(
+            (
+                By.XPATH,
+                '//*[@id="__next"]/div[1]/div[4]/div/div[2]/div[1]/div[1]/div/div/div[2]/h1',
+            )
+        )
+    )
+    try:
+        specification = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    '//*[@id="__next"]/div[1]/div[4]/div/div[2]/div[1]/div[1]/div/div/div[3]/p',
+                )
+            )
+        )
+    except TimeoutException:
+        specification = None
+
+    content = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "coverLetterContent"))
+    )
+
+    person["info"] = info.text if info else "Not Available"
+    person["specification"] = specification.text if specification else "Not Available"
+    person["self_intro"] = content.text if content else "Not Available"
+
     return person
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-import linkareer
 
-url="C://data/linkareer_link.txt"
-driver = webdriver.Chrome("C:/Program Files/chromedriver/chromedriver")
-# linkareer.url_crawl(driver=driver)
-f=open(url,'r')
-while True: # 11437
-    txt_link = f.readline()
-    if txt_link=="":
-        break
-    person = linkareer.self_introduction(driver=driver,url=txt_link)
+# Main script execution
+service = Service("C:/Program Files/chromedriver-win64/chromedriver.exe")
+driver = webdriver.Chrome(service=service)
+
+# # Uncomment Crawl URLs first
+# url_crawl(driver)
+
+# Then read URLs from Link.txt and write output to Link__1.txt in dictionary form
+with open("C:/Users/hancomtst/Desktop/Link.txt", "r") as f, open(
+    "C:/Users/hancomtst/Desktop/Link__1.txt", "w"
+) as out_file:
+    for txt_link in f:
+        txt_link = txt_link.strip()
+        if txt_link == "":
+            continue
+        person = self_introduction(driver, txt_link)
+        json.dump({"URL": txt_link, "Details": person}, out_file)
+        out_file.write("\n")  # Add a newline to separate each dictionary entry
+
 driver.close()
-f.close()
