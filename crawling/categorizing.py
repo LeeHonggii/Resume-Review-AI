@@ -1,36 +1,31 @@
-def classify_and_save_text(file_path):
-    # 파일 읽기
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
+# Define the headings and corresponding file names
+sections = {
+    "강점:": "강점.txt",
+    "단점:": "단점.txt",
+    "지원동기 및 입사 후 포부:": "지원동기 및 입사 후 포부.txt",
+    "성공경험:": "성공경험.txt",
+}
 
-    # 섹션별로 내용을 저장할 딕셔너리
-    sections = {
-        "성공경험": [],
-        "지원동기 및 입사 후 포부": [],
-        "강점": [],
-        "단점": []
-    }
 
-    # 섹션 이름을 키워드로 사용하여 텍스트 분할
+def process_file(input_filename):
     current_section = None
-    lines = content.split("\n")
-    for line in lines:
-        stripped_line = line.strip()
-        if stripped_line.endswith(':'):
-            potential_section = stripped_line[:-1]
-            if potential_section in sections:
-                current_section = potential_section
-                continue
-        if current_section and stripped_line:
-            sections[current_section].append(stripped_line)
+    section_content = {key: [] for key in sections.keys()}
 
-    # 분류된 각 섹션별 텍스트를 파일로 저장
-    for section, lines in sections.items():
-        filename = f"{section}.txt"
-        with open(filename, 'w', encoding='utf-8') as file:
-            file.write("\n".join(lines))
+    with open(input_filename, "r", encoding="utf-8") as file:
+        for line in file:
+            # Check if the line contains a section heading
+            if line.strip() in sections:
+                current_section = line.strip()
+            elif current_section:
+                # Add the line to the correct section
+                section_content[current_section].append(line)
+
+    # Write each section to its corresponding file
+    for section, content in section_content.items():
+        if content:  # Only write if there is content for this section
+            with open(sections[section], "w", encoding="utf-8") as file:
+                file.writelines(content)
 
 
-# 텍스트 파일 경로를 설정하세요
-file_path = "C:/Users/birth/Desktop/라벨링.txt"
-classify_and_save_text(file_path)
+# Example usage:
+process_file("3/라벨링_nospace.txt")
