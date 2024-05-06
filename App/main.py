@@ -1,19 +1,20 @@
-from fastapi import FastAPI, Request, HTTPException, Form, File, UploadFile, status, Depends
+from fastapi import FastAPI, Request, Form, HTTPException, Depends, UploadFile, File, Response
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse
-import uvicorn
 import hashlib
+import uvicorn
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
-
-
 templates = Jinja2Templates(directory="App/templates")
 
 
 users = {
     "john_doe": {
         "username": "john_doe",
-        # Hashed password
         "password": hashlib.sha256("password123".encode()).hexdigest()
     }
 }
@@ -24,65 +25,68 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.route("/signup", methods=["GET", "POST"])
-async def signup(request: Request, username: str = Form(None), password: str = Form(None)):
-    if request.method == "GET":
-        return templates.TemplateResponse("signup.html", {"request": request})
+@app.get("/login", response_class=HTMLResponse)
+async def login_form(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 
-    if username in users:
+
+@app.post("/login")
+async def login(request: Request, username: str = Form(...), password: str = Form(...)):
+    logger.debug(
+        f"Received login request with username: {username}, password: {password}")
+
+    user = users.get(username)
+    if user and user['password'] == hashlib.sha256(password.encode()).hexdigest():
+        logger.debug("Login successful: User authenticated")
+        response = RedirectResponse(url=f"/{username}", status_code=302)
+        response.set_cookie(key="username", value=username, httponly=True)
+        return response
+    else:
+        logger.error("Login failed: Invalid username or password")
         raise HTTPException(
-            status_code=400, detail="Username already registered")
+            status_code=401, detail="Invalid username or password")
 
-    users[username] = {"password": password}
-    return templates.TemplateResponse("signup.html", {
+
+@app.post("/logout")
+async def logout(response: Response):
+    response = RedirectResponse(url="/", status_code=302)
+    response.delete_cookie("username")
+    return response
+
+
+@app.get("/{username}", response_class=HTMLResponse)
+async def user_page(request: Request, username: str):
+    user_cookie = request.cookies.get("username")
+    if not user_cookie or user_cookie != username:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    user = users.get(username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return templates.TemplateResponse("user_page.html", {
         "request": request,
-        "message": f"User {username} registered successfully"
+        "user": {"username": username}
     })
 
 
-@app.route("/login", methods=["GET", "POST"])
-async def login(request: Request):
-    if request.method == "GET":
-        # If the request method is GET, render the login page
-        return templates.TemplateResponse("login.html", {"request": request})
-
-    # Handle POST request for login
-    form_data = await request.form()
-    username = form_data.get('username')
-    password = form_data.get('password')
-    print(f"Received username: {username}")
-    print(f"Received password: {password}")
-
-    # Check if the user exists and the password is correct
-    if username not in users or hashlib.sha256(password.encode()).hexdigest() != users[username]['password']:
-        print("Invalid login attempt")
-        return templates.TemplateResponse("login.html", {
-            "request": request,
-            "error_message": "Invalid username or password"
-        })
-
-    print("Login successful")
-    return JSONResponse(content={"username": username, "message": "Login successful"})
-
-
-@app.post("/upload")
+@app.route("/upload", methods=["POST"])
 async def upload(file: UploadFile = File(...)):
     content = await file.read()
-    # You could save this file to a server or process it
     return {"filename": file.filename, "content_type": file.content_type}
 
 
-@app.post("/result")
+@app.route("/result", methods=["POST"])
 async def result():
     pass
 
 
-@app.post("/classification")
+@ app.route("/classification", methods=["POST"])
 async def classification():
     pass
 
 
-@app.post("/generation")
+@app.route("/generation", methods=["POST"])
 async def generation():
     pass
 
