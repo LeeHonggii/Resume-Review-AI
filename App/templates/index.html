@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1> hello</h1>
-    <p><a href="/login">login</a></p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service Title</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo">Service Title</div>
+      <form action="/login" method="get" class="login-form">
+        <button type="submit">Login</button>
+      </form>
+    </div>
+    <div class="navigation-bar"></div>
+    <div class="main-content">
+      <div class="title-section">
+        <div class="title">Revise </br> Your Own</div>
+      </div>
+      <div class="right-content">
+        <div class="explanation">
+          사용자가 입력한 자유 형식의 자기소개서를 문장 단위로 분류해 필수 항목
+          유무를 판별하는 모델을 개발하고, 생성형 모델/ChatGPT 등을 활용해 2가지
+          이상의 피드백 옵션을 제안한다.
+        </div>
+        <form action="/start" method="post" class="start-form">
+          <button type="submit">이용 시작</button>
+        </form>
+      </div>
+    </div>
   </body>
-</body>
 </html>

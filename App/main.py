@@ -9,7 +9,9 @@ from fastapi import (
     Response,
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pathlib import Path
 import hashlib
 import uvicorn
 import logging
@@ -18,8 +20,9 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
-
+templates = Jinja2Templates(directory="App/templates")
+styles_dir = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=str(styles_dir)), name="static")
 
 users = {
     "john_doe": {
@@ -53,7 +56,8 @@ async def login(request: Request, username: str = Form(...), password: str = For
         return response
     else:
         logger.error("Login failed: Invalid username or password")
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(
+            status_code=401, detail="Invalid username or password")
 
 
 @app.post("/logout")
@@ -101,4 +105,5 @@ async def generation():
 
 if __name__ == "__main__":
 
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, log_level="debug", reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000,
+                log_level="debug", reload=True)
