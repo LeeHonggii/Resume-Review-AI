@@ -10,21 +10,21 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import hashlib
 import uvicorn
 import logging
 from openai import OpenAI
-import base64
 
 app = FastAPI()
 
-# 클라이언트 초기화
-def create_openai_client():
-    api_key='aa'
 
+def create_openai_client():
+    api_key = ""
     return OpenAI(api_key=api_key)
+
 
 client = create_openai_client()
 
@@ -49,6 +49,22 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@app.get("/signup", response_class=HTMLResponse)
+async def signup_form(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+
+@app.post("/signup")
+async def handle_signup(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...), confirm_password: str = Form(...)):
+    if password != confirm_password:
+        return templates.TemplateResponse("signup.html", {"request": request, "error_message": "Passwords do not match"})
+    if username in users:
+        return templates.TemplateResponse("signup.html", {"request": request, "error_message": "Username already exists"})
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    users[username] = {"username": username, "password": hashed_password}
+    return RedirectResponse(url="/login", status_code=302)
+
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -68,7 +84,8 @@ async def login(request: Request, username: str = Form(...), password: str = For
         return response
     else:
         logger.error("Login failed: Invalid username or password")
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(
+            status_code=401, detail="Invalid username or password")
 
 
 @app.post("/logout")
@@ -91,14 +108,9 @@ async def user_page(request: Request, username: str):
 
     analysis_result = request.cookies.get("analysis_result", "")
     return templates.TemplateResponse(
-        "user_page.html", {"request": request, "user": {"username": username}, "analysis_result": analysis_result}
+        "user_page.html", {"request": request, "user": {
+            "username": username}, "analysis_result": analysis_result}
     )
-
-
-@app.route("/upload", methods=["POST"])
-async def upload(file: UploadFile = File(...)):
-    content = await file.read()
-    return {"filename": file.filename, "content_type": file.content_type}
 
 
 @app.route("/result", methods=["POST"])
@@ -106,15 +118,11 @@ async def result():
     pass
 
 
-@app.post("/classification")
+@app.post("/generation")
 async def chat_analysis(request: Request, job_title: str = Form(...), text: str = Form(...)):
     analysis_result = await get_gpt_response(job_title, text)
-    return templates.TemplateResponse("user_page.html", {
-        "request": request,
-        "job_title": job_title,
-        "text": text,
-        "analysis_result": analysis_result
-    })
+    return Response(content=analysis_result, media_type="text/plain")
+
 
 async def get_gpt_response(job_title: str, text: str) -> str:
     prompt = f"자소서 내용 분석 (직무: {job_title}): {text}\n" \
@@ -136,8 +144,7 @@ async def generation():
     pass
 
 
-
-
 if __name__ == "__main__":
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8888, log_level="debug", reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8888,
+                log_level="debug", reload=True)

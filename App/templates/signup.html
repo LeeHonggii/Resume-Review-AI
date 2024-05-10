@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signup</title>
-    <link rel="stylesheet" href="/static/login.css" />
-</head>
+  </head>
 
-<body>
-
+  <body>
     <div class="header">
       <div class="logo">Service Title</div>
       <form action="/login" method="get" class="login-form">
@@ -19,35 +16,58 @@
     <div class="navigation-bar"></div>
 
     <div class="main-content">
-        <h2 class="info">회원가입</h2>
-        <form action="/signup" method="post">
-            <label for="username" id="label-username">아이디</label>
-            <input type="text" name="username" placeholder="Username" id="username" required>
-            
-            <label for="email" id="label-email">이메일</label>
-            <input type="email" name="email" placeholder="Email" id="email" required>
+      <h2 class="info">회원가입</h2>
+      <form action="/signup" method="post">
+        <label for="username" id="label-username">아이디</label>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          id="username"
+          required
+        />
 
-            <label for="password" id="label-password">비밀번호</label>
-            <input type="password" name="password" placeholder="Password" id="password" required>
+        <label for="email" id="label-email">이메일</label>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          id="email"
+          required
+        />
 
-            <label for="confirm-password" id="label-confirm-password">비밀번호 확인</label>
-            <input type="password" name="confirm-password" placeholder="Confirm Password" id="confirm-password" required>
-            
-            <button type="submit" class="signup">회원가입</button>
-        </form>
+        <label for="password" id="label-password">비밀번호</label>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          id="password"
+          required
+        />
 
-        <div class="line">또는</div>
+        <label for="confirm-password" id="label-confirm-password"
+          >비밀번호 확인</label
+        >
+        <input
+          type="password"
+          name="confirm-password"
+          placeholder="Confirm Password"
+          id="confirm-password"
+          required
+        />
 
-        <form action="/login" method="get">
-            <button type="submit" class="reset-password">로그인</button>
-        </form>
+        <button type="submit" class="signup">회원가입</button>
+      </form>
 
-        {% if error_message %}
-            <div class="error">{{ error_message }}</div>
-        {% endif %}
-        
+      <div class="line">또는</div>
+
+      <form action="/login" method="get">
+        <button type="submit" class="reset-password">로그인</button>
+      </form>
+
+      {% if error_message %}
+      <div class="error">{{ error_message }}</div>
+      {% endif %}
     </div>
-    
-</body>
-
+  </body>
 </html>

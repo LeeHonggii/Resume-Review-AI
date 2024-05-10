@@ -1,67 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/user_page.css" />
     <title>User Profile</title>
     <script>
-        // Clear analysis_result cookie on page load
-        document.addEventListener("DOMContentLoaded", function() {
-            document.cookie = "analysis_result=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // Clears the specific cookie
+      // Clear analysis_result cookie on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        document.cookie =
+          "analysis_result=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // Clears the specific cookie
 
-            const inputs = document.querySelectorAll('input[type="text"], textarea');
-            inputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    updateCount(this);
-                });
-                updateCount(input);
-            });
+        const inputs = document.querySelectorAll(
+          'input[type="text"], textarea'
+        );
+        inputs.forEach((input) => {
+          input.addEventListener("input", function () {
+            updateCount(this);
+          });
+          updateCount(input);
         });
+      });
 
-        function updateCount(input) {
-            var count = input.value.length;
-            var max = input.getAttribute('maxlength');
-            var countId = input.id + '-count';
-            document.getElementById(countId).innerText = `${count}/${max}`;
-        }
+      function updateCount(input) {
+        var count = input.value.length;
+        var max = input.getAttribute("maxlength");
+        var countId = input.id + "-count";
+        document.getElementById(countId).innerText = `${count}/${max}`;
+      }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
-        <div class="logo">Service Title</div>
-        <form action="/login" method="get" class="login-form">
-            <button type="submit" class="upper-login">로그인</button>
-        </form>
+      <div class="logo">Service Title</div>
+      <form action="/login" method="get" class="login-form">
+        <button type="submit" class="upper-login">로그인</button>
+      </form>
     </header>
 
     <nav class="navigation-bar"></nav>
 
     <div class="main-content">
-        <section class="your-work">
-          <h2>자소서</h2>
-          <form action="/classification" method="post">
-              <div class="input-group">
-                  <label for="job_title">지원직무</label>
-                  <input type="text" name="job_title" id="job_title" placeholder="지원 직무에 대해 입력해주세요." maxlength="1000" required>
-                  <span id="position-count">0/1000</span>
-              </div>
+      <section class="your-work">
+        <h2>자소서</h2>
+        <form action="/generation" method="post">
+          <div class="input-group">
+            <label for="job_title">지원직무</label>
+            <input
+              type="text"
+              name="job_title"
+              id="job_title"
+              placeholder="지원 직무에 대해 입력해주세요."
+              maxlength="1000"
+              required
+            />
+            <span id="position-count">0/1000</span>
+          </div>
 
-              <div class="input-group">
-                  <label for="text">자기소개서 본문</label>
-                  <textarea name="text" id="text" placeholder="자기소개서 본문을 입력해주세요." maxlength="5000" required></textarea>
-                  <span id="personal-statement-count">0/5000</span>
-              </div>
+          <div class="input-group">
+            <label for="text">자기소개서 본문</label>
+            <textarea
+              name="text"
+              id="text"
+              placeholder="자기소개서 본문을 입력해주세요."
+              maxlength="5000"
+              required
+            ></textarea>
+            <span id="personal-statement-count">0/5000</span>
+          </div>
 
-              <button type="submit">피드백 받기</button>
-          </form>
-        </section>
+          <button type="submit">피드백 받기</button>
+        </form>
+      </section>
 
-        <section class="feedback">
-            <h2>피드백</h2>
-            <div class="first-feedback">{{ analysis_result | default('No analysis results available.') }}</div>
-            <div class="second-feedback"></div>
-        </section>
+      <section class="feedback">
+        <h2 class="feedback-title">피드백</h2>
+        <div class="first-feedback">
+          {{ analysis_result | default('No analysis results available.') }}
+        </div>
+        <div class="second-feedback"></div>
+      </section>
     </div>
 
     <footer class="footer">
@@ -70,5 +88,47 @@
         <button type="submit">Logout</button>
       </form>
     </footer>
-</body>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        document.cookie =
+          "analysis_result=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        const form = document.querySelector('form[action="/generation"]');
+        const feedbackDiv = document.querySelector(".first-feedback");
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          const formData = new FormData(form);
+          fetch("/generation", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.text())
+            .then((result) => {
+              feedbackDiv.textContent = result;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              feedbackDiv.textContent = "Error loading analysis results.";
+            });
+
+          const inputs = document.querySelectorAll(
+            'input[type="text"], textarea'
+          );
+          inputs.forEach((input) => {
+            input.addEventListener("input", function () {
+              updateCount(this);
+            });
+            updateCount(input);
+          });
+        });
+
+        function updateCount(input) {
+          var count = input.value.length;
+          var max = input.getAttribute("maxlength");
+          var countId = input.id + "-count";
+          document.getElementById(countId).innerText = `${count}/${max}`;
+        }
+      });
+    </script>
+  </body>
 </html>

@@ -83,9 +83,16 @@ textarea#personal-statement {
 }
 
 .feedback {
-  background-color: #abc333;
+  background-color: #c9c9c9;
+  margin-left: 20px;
+  margin-right: 50px;
+}
+.feedback-title {
+  margin-left: 50px;
 }
 .first-feedback, .second-feedback {
-  background-color: #abc333;
-  color: white;
+  background-color: #c9c9c9;
+  color: black;
+  margin-left: 20px;
+  margin-right: 20px;
 }
