@@ -1,16 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/user_page.css" />
     <title>User Profile</title>
-  </head>
-  <body>
-    <h1>User Profile</h1>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><a href="/">Go back to home</a></p>
-    <form action="/logout" method="post">
-      <button type="submit">Logout</button>
-    </form>
-  </body>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Service Title</div>
+        <form action="/login" method="get" class="login-form">
+            <button type="submit" class="upper-login">로그인</button>
+        </form>
+    </header>
+
+    <nav class="navigation-bar"></nav>
+    
+    <div class="main-content">
+        <section class="your-work">
+          <h2>자소서</h2>
+          <form action="/classification" method="post">
+              <div class="input-group">
+                  <label for="position">지원직무</label>
+                  <input type="text" name="position" id="position" placeholder="지원 직무에 대해 입력해주세요." maxlength="1000" required>
+                  <span id="position-count">0/1000</span>
+              </div>
+
+              <div class="input-group">
+                  <label for="personal-statement">자기소개서 본문</label>
+                  <textarea name="personal-statement" id="personal-statement" placeholder="자기소개서 본문을 입력해주세요." maxlength="5000" required></textarea>
+                  <span id="personal-statement-count">0/5000</span>
+              </div>
+
+              <button type="submit">피드백 받기</button>
+          </form>
+        </section>
+
+
+        <section class="feedback">
+            <h2>피드백</h2>
+            <div class="first-feedback"></div>
+            <div class="second-feedback"></div>
+        </section>
+    </div>
+    
+    <footer class="footer">
+      <p><a href="/">Go back to home</a></p>
+      <form action="/logout" method="post">
+        <button type="submit">Logout</button>
+      </form>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputs = document.querySelectorAll('input[type="text"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateCount(this);
+                });
+                updateCount(input);
+            });
+        });
+
+        function updateCount(input) {
+            var count = input.value.length;
+            var max = input.getAttribute('maxlength');
+            var countId = input.id + '-count';
+            document.getElementById(countId).innerText = `${count}/${max}`;
+        }
+    </script>
+</body>
 </html>

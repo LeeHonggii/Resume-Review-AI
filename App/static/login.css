@@ -1,0 +1,125 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; 
+  background-color: #f4f4f4;
+  width: 100%; 
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+  color: #fff;
+  width: 100%; 
+  box-sizing: border-box; 
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%; 
+  max-width: 1920px; 
+  min-height: calc(100vh - 60px); 
+  margin: auto; 
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 300px; 
+}
+#label-username,
+#label-password {
+    align-self: flex-start;
+}
+input[type="text"],
+input[type="password"],
+.lower-login {
+  width: 100%; 
+  padding: 10px;
+  margin: 5px 0;
+  box-shadow: none;
+  border: 2px solid;
+  border-color: #a3a3a3;
+  border-radius: 10px;
+}
+
+.upper-login {
+    width: 100px;
+}
+
+.line {
+    width: 50vh;
+    display: flex;
+    align-items: center;
+    color: #888; /* Updated for better visibility */
+    font-size: 14px;
+    margin: 8px 0;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.line::before,
+.line::after {
+    content: "";
+    flex-grow: 1;
+    margin: 0 16px;
+    background-color: #ccc; /* Updated for better visibility */
+    height: 1px; /* Ensure height is sufficient to be visible */
+}
+
+button.lower-login, button.signup{
+  width: 100%; 
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #a3a3a3; /* Adjusted for uniform color */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button.reset-password {
+    width: 100%; 
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #d9d9d9;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button.upper-login {
+  width: 100px;
+  background-color: #a3a3a3; /* Adjusted for uniform color */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+    background-color: #a3a3a3;
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    padding: 10px 20px; /* Increased padding for smaller screens */
+  }
+}

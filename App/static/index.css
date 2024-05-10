@@ -12,17 +12,24 @@ body, html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 10px 0px;
   background-color: #333;
   color: #fff;
   width: 100%;
 }
 
+.login-form {
+  margin-left: auto;
+  margin-right: 70px;
+  width: 100px;
+  color: black;
+}
+
 .main-content {
   display: grid;
   grid-template-columns: 1fr 3fr;
-  width: 100%; /* Ensures full width on all devices */
-  max-width: 1920px; /* Maximum width for larger screens */
+  width: 100%; 
+  max-width: 1920px; 
   min-height: calc(100vh - 60px);
   align-items: center;
 }
@@ -32,13 +39,18 @@ body, html {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  width: 800px; /* Fixed width for large screens, adjust below */
+  width: 800px;
 }
 
 .title {
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
   text-align: left;
-  font-size: 120px; /* Adjust with media queries below */
+  font-size: 120px;
   margin: 0;
+  margin-left: 100px;
+  margin-bottom: 300px;
 }
 
 .right-content {
@@ -56,10 +68,26 @@ body, html {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  text-align: right;
+  padding-left: 130px;
+  margin-left: 300px;
+  margin-right: 200px;
+  margin-top: 100px;
 }
 
 .start-form {
-  margin-top: 10px;
+  display: flex;
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: 200px;
+}
+
+.start-button {
+  width: 130px;
+  height: 30px;
+  background-color: #333;
+  border: none;
+  border-radius: 10px;
 }
 
 /* Media queries for responsiveness */
@@ -80,10 +108,14 @@ body, html {
     max-width: none; /* Remove max width constraint */
     padding: 10px;
   }
+
+  .explanation {
+    margin: 20px; /* Adjust margin for smaller screens */
+  }
 }
 
 @media (max-width: 768px) {
-  .header {
+  .header { 
     flex-direction: column;
     padding: 5px 10px; /* Adjust padding for smaller screens */
   }
@@ -91,4 +123,29 @@ body, html {
   .title {
     font-size: 8vw; /* Increase font size visibility on very small screens */
   }
+
+  .login-form {
+    margin-right: 10px; /* Adjust margin for smaller screens */
+  }
 }
+
+@media (max-width: 480px) {
+  .header, .title-section, .right-content, .explanation {
+    padding: 5px; /* Further reduce padding for very small screens */
+  }
+
+  .title {
+    margin-left: 10px; /* Adjust margin for very small screens */
+    margin-bottom: 100px; /* Reduce bottom margin for compact display */
+  }
+}
+
+
+
+/* 제목 (revise your own)
+Alfa Slab One - regular
+
+본문
+pretendard - semibold
+pretendard - medium
+*/

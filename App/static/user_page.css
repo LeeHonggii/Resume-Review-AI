@@ -1,0 +1,91 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background-color: #f4f4f4;
+  width: 100%;
+  overflow: hidden; /* Prevents scrolling on the body itself */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.logo {
+  font-size: 1.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two columns of equal width */
+  gap: 20px;
+  width: 100%;
+  flex-grow: 1; /* Allows the content area to grow and fill available space */
+  overflow-y: auto; /* Enables scrolling within the content area if needed */
+  padding: 20px;
+  margin: auto;
+}
+
+.footer {
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 1fr; /* Stacks the columns vertically */
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .logo, .login-form {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .login-form button {
+    width: 100%;
+  }
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+textarea#personal-statement {
+  height: 30vh;
+}
+
+.feedback {
+  background-color: #abc333;
+}
+.first-feedback, .second-feedback {
+  background-color: #abc333;
+  color: white;
+}
