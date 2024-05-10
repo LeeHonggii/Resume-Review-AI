@@ -22,12 +22,12 @@ app = FastAPI()
 
 # 클라이언트 초기화
 def create_openai_client():
-    api_key = "sk-proj-1T8b3RZsY7loNQXU3kI0T3BlbkFJsnWje1cI7On6EOUqFL85"
 
     return OpenAI(api_key=api_key)
 
 client = create_openai_client()
 
+logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
