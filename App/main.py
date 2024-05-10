@@ -56,8 +56,7 @@ async def login(request: Request, username: str = Form(...), password: str = For
         return response
     else:
         logger.error("Login failed: Invalid username or password")
-        raise HTTPException(
-            status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
 
 @app.post("/logout")
@@ -105,5 +104,4 @@ async def generation():
 
 if __name__ == "__main__":
 
-    uvicorn.run("main:app", host="127.0.0.1", port=8000,
-                log_level="debug", reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8888, log_level="debug", reload=True)

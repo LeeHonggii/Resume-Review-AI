@@ -43,11 +43,12 @@ body, html {
 }
 
 .title {
+  grid-template-columns: ;
   font-family: "Alfa Slab One", serif;
   font-weight: 400;
   font-style: normal;
   text-align: left;
-  font-size: 120px;
+  font-size: min(max(4vw, 32px), 90px); /* Adjusted max font size for better fit */
   margin: 0;
   margin-left: 100px;
   margin-bottom: 300px;
