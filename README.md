@@ -5,7 +5,7 @@
 ![LA](/image/LA.png "LA")
 
 ## Flowchart
-![예시 이미지](/image/example.png "이미지 타이틀")
+![Flowchart](/image/flowchart.png "flowchart")
 
 
 ## DATACARD
