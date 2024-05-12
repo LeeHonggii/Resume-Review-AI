@@ -1,4 +1,5 @@
-body, html {
+body,
+html {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -8,14 +9,19 @@ body, html {
   background-color: #f4f4f4;
 }
 
+.body {
+  font-size: calc(1em + 0.5vw);
+}
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0px;
+  padding: 10px 20px;
   background-color: #333;
   color: #fff;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .login-form {
@@ -27,9 +33,10 @@ body, html {
 
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 3fr;
-  width: 100%; 
-  max-width: 1920px; 
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1920px;
   min-height: calc(100vh - 60px);
   align-items: center;
 }
@@ -38,20 +45,22 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
-  width: 800px;
+  width: auto;
+  margin: auto;
+  transform: translateY(-100px);
 }
 
 .title {
-  grid-template-columns: ;
   font-family: "Alfa Slab One", serif;
   font-weight: 400;
   font-style: normal;
   text-align: left;
-  font-size: min(max(4vw, 32px), 90px); /* Adjusted max font size for better fit */
+  font-size: min(max(8vw, 32px), 90px);
   margin: 0;
-  margin-left: 100px;
-  margin-bottom: 300px;
+  margin-left: 1vw;
+  /* Dynamic left margin */
+  margin-bottom: 5vh;
+  /* Dynamic bottom margin based on viewport height */
 }
 
 .right-content {
@@ -67,6 +76,7 @@ body, html {
 .explanation {
   flex-grow: 1;
   display: flex;
+  font-size: calc(1vw);
   flex-direction: column;
   justify-content: center;
   text-align: right;
@@ -84,69 +94,108 @@ body, html {
 }
 
 .start-button {
-  width: 130px;
-  height: 30px;
+  width: auto;
+  height: auto;
+  padding: 10px 20px;
+  font-size: calc(0.5em + 1vw);
   background-color: #333;
   border: none;
   border-radius: 10px;
 }
 
-/* Media queries for responsiveness */
 @media (max-width: 1920px) {
   .title {
-    font-size: calc(120px * 100vw / 1920); /* Responsive font size */
+    font-size: calc(120px * 100vw / 1920);
+    /* Responsive font size */
+  }
+
+  .explanation {
+    font-size: 0.7em;
   }
 }
 
 @media (max-width: 1024px) {
-  .main-content {
+
+  .main-content,
+  .title-section,
+  .right-content {
     display: flex;
     flex-direction: column;
-  }
-
-  .title-section, .right-content {
-    width: 100%; /* Full width on smaller screens */
-    max-width: none; /* Remove max width constraint */
+    width: 100%;
     padding: 10px;
   }
 
+  .title {
+    font-size: 7vw;
+  }
+
   .explanation {
-    margin: 20px; /* Adjust margin for smaller screens */
+    margin: 20px;
+    font-size: 3vw;
   }
 }
 
 @media (max-width: 768px) {
-  .header { 
+  .header {
     flex-direction: column;
-    padding: 5px 10px; /* Adjust padding for smaller screens */
+    padding: 5px 10px;
+    /* Even thinner padding for smaller screens */
   }
 
   .title {
-    font-size: 8vw; /* Increase font size visibility on very small screens */
+    font-size: 8vw;
+    margin-left: 5px;
+    margin-bottom: 20px;
+  }
+
+  .explanation {
+    font-size: 3vw;
   }
 
   .login-form {
-    margin-right: 10px; /* Adjust margin for smaller screens */
+    margin-right: 10px;
   }
 }
 
 @media (max-width: 480px) {
-  .header, .title-section, .right-content, .explanation {
-    padding: 5px; /* Further reduce padding for very small screens */
+
+  .header,
+  .title-section,
+  .right-content,
+  .explanation {
+    padding: 5px;
+    /* Minimal padding */
   }
 
   .title {
-    margin-left: 10px; /* Adjust margin for very small screens */
-    margin-bottom: 100px; /* Reduce bottom margin for compact display */
+    margin-left: 10px;
+    margin-bottom: 10px;
   }
 }
 
+@media (max-width: 600px) {
 
+  .main-content,
+  .title-section,
+  .right-content,
+  .explanation {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+  }
 
-/* 제목 (revise your own)
-Alfa Slab One - regular
+  .title {
+    font-size: 10vw;
+    margin: 10px;
+  }
 
-본문
-pretendard - semibold
-pretendard - medium
-*/
+  .explanation {
+    font-size: 5vw;
+    margin: 10px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+}

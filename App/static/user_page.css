@@ -40,10 +40,65 @@ body, html {
 }
 
 .footer {
+  display: flex;
+  justify-content: space-between;
+  /* This will put space between items, aligning one to the left and one to the right */
+  align-items: center;
+  /* This aligns items vertically in the center */
   padding: 10px 20px;
   background-color: #333;
   color: white;
-  text-align: center;
+  width: 100%;
+  /* Ensures the footer spans the entire width of the viewport */
+}
+
+.footer p,
+.footer form {
+  flex: 1;
+  /* Each child will take up equal space in the footer */
+  display: flex;
+  align-items: center;
+  /* Ensures vertical alignment is centered within each block */
+  margin: 0;
+  /* Removes default margin */
+}
+
+.footer a {
+  color: white;
+  /* Ensures the text color is white */
+  text-decoration: none;
+  /* Removes underline from the link */
+}
+
+.footer a:hover {
+  text-decoration: underline;
+  /* Adds an underline on hover for better UX */
+}
+
+.footer form {
+  justify-content: flex-end;
+  /* Aligns the form to the right within its flex container space */
+}
+
+.footer button {
+  padding: 8px 16px;
+  /* Adds padding within the button */
+  background-color: #a3a3a3;
+  /* Sets the background color */
+  color: black;
+  /* Sets the text color */
+  border: none;
+  /* Removes the border */
+  border-radius: 4px;
+  /* Rounds the corners */
+  cursor: pointer;
+  /* Changes the cursor to a pointer */
+  margin-right: 100px;
+}
+
+.footer button:hover {
+  background-color: #888;
+  /* Changes the background color on hover */
 }
 
 @media (max-width: 1024px) {
