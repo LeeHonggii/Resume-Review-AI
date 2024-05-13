@@ -5,43 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/user_page.css" />
     <title>User Profile</title>
+    <script src="https://unpkg.com/tiny-markdown-editor/dist/tiny-mde.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tiny-markdown-editor/dist/tiny-mde.min.css"/>
     <script>
-        // Function to update the character count
-        function updateCount(input) {
-            var count = input.value.length;
-            var max = input.getAttribute("maxlength");
-            var countId = input.id + "-count";
-            document.getElementById(countId).innerText = `${count}/${max}`;
-        }
-
-        // Setup event listeners on document load
         document.addEventListener("DOMContentLoaded", function () {
-            const inputs = document.querySelectorAll('input[type="text"], textarea');
-            inputs.forEach((input) => {
-                // Initialize the counters on page load
-                updateCount(input);
+            // Initialize the TinyMDE Editor
+            var tinyMDE5 = new TinyMDE.Editor({
+                element: document.getElementById('tinymde5'),
+                content: 'Type your markdown content here...'
+            });
+            var commandBar5 = new TinyMDE.CommandBar({
+                element: document.getElementById('tinymde_commandbar5'),
+                editor: tinyMDE5,
+            });
+            tinyMDE5.addEventListener('change', function(e) {
+                let content = e.getContent();
+                let wordCount = content.split(/\s+/).filter(function(n) { return n != '' }).length;
+                let charCount = content.length;
+                document.getElementById('wc').innerHTML = `${charCount} characters, ${wordCount} words`;
+            });
 
-                // Add event listeners to update counters on user input
-                input.addEventListener("input", function () {
-                    updateCount(this);
+            // Function to update the character count for regular inputs
+            function updateCount(input) {
+              var count = input.value.length;
+              var max = input.getAttribute("maxlength");
+              var countId = input.id + "-count";
+              document.getElementById(countId).innerText = `${count}/${max}`;
+            }
+
+            // Setup character counts on page load for text inputs
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(input => {
+                updateCount(input); // Initial update on load
+                input.addEventListener("input", function() {
+                    updateCount(this); // Update on user input
                 });
             });
 
-            // Clear analysis_result cookie on page load
-            document.cookie = "analysis_result=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            // Handle form submission to prevent page reload and send data via AJAX
+            document.querySelector('form[action="/generation"]').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent form submission
+                var formData = new FormData(this);
+                fetch('/generation', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.text())
+                  .then(data => {
+                    tinyMDE5.setContent(data); // Set the content of TinyMDE with the API response
+                  }).catch(error => console.error('Error:', error));
+            });
         });
     </script>
 </head>
 <body>
     <header class="header">
-        <div class="logo">Service Title</div>
-        <form action="/login" method="get" class="login-form">
-            <button type="submit" class="upper-login">로그인</button>
-        </form>
+        <div class="logo"><a href="/">Service Title</a></div>
     </header>
 
     <nav class="navigation-bar"></nav>
 
+    <form action="/logout" method="post">
+      <button type="submit" class="logout">Logout</button>
+    </form>
     <div class="main-content">
         <section class="your-work">
             <h2>자소서</h2>
@@ -51,32 +76,24 @@
                     <input type="text" name="job_title" id="job_title" placeholder="지원 직무에 대해 입력해주세요." maxlength="1000" required />
                     <span id="job_title-count">0/1000</span>
                 </div>
-
                 <div class="input-group">
-                    <label for="text">자기소개서 본문</label>
-                    <textarea name="text" id="text" placeholder="자기소개서 본문을 입력해주세요." maxlength="5000" required></textarea>
-                    <span id="text-count">0/5000</span>
+                  <label for="text">자기소개서 본문</label>
+                  <textarea name="text" id="personal-statement" placeholder="자기소개서 본문을 입력해주세요." maxlength="5000" required></textarea>
+                  <span id="personal-statement-count">0/5000</span>
                 </div>
-
-                <button type="submit">피드백 받기</button>
+                <button type="submit" class="submit-ps">피드백 받기</button>
             </form>
         </section>
-
         <section class="feedback">
             <h2 class="feedback-title">피드백</h2>
-            <div id="tinymde_commandbar1"></div>
-            <div class="first-feedback" id="tinymde1">
-                {{ analysis_result | default('No analysis results available.') }}
+            <div id="tinymde_commandbar5"></div>
+            <div id="tinymde5" style="width:auto;height:150px; overflow-y:scroll; border:1px solid #000000"></div>
+            <div id="tinymde_status5" style="display:flex;">
+              <div id="wc" style="box-sizing:border-box; width:50%; padding:4px 0px; text-align:left"></div>
+              <div id="pos" style="box-sizing:border-box; width:50%; padding:4px 0px; text-align:right">– : –</div>
             </div>
-            <div class="second-feedback"></div>
         </section>
     </div>
 
-    <footer class="footer">
-        <p><a href="/">Go back to home</a></p>
-        <form action="/logout" method="post">
-            <button type="submit">Logout</button>
-        </form>
-    </footer>
 </body>
 </html>

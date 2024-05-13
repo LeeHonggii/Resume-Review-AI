@@ -10,27 +10,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div class="header">
-      <div class="logo">Service Title</div>
+      <header class="header">
+      <div class="logo"><a href="/">Service Title</a></div>
       <form action="/login" method="get" class="login-form">
-        <button type="submit">로그인</button>
+        <button type="submit" class="upper-login">로그인</button>
       </form>
-    </div>
+    </header>
     <div class="navigation-bar"></div>
     <div class="main-content">
       <div class="title-section">
         <div class="title">revise </br> your own</div>
-      </div>
-      <div class="right-content">
-        <div class="explanation">
-          (서비스 설명, 수정 예정) 사용자가 입력한 자유 형식의 자기소개서를 문장 단위로 분류해 필수 항목
-          유무를 판별하는 모델을 개발하고, 생성형 모델/chatGPT 등을 활용해 2가지
-          이상의 피드백 옵션을 제안한다.
-        </div>
         <form action="/login" method="get" class="start-form">
           <button type="submit" class="start-button">이용 시작</button>
         </form>
       </div>
+
+      <div class="explanation">
+        (서비스 설명, 수정 예정) 사용자가 입력한 자유 형식의 자기소개서를 문장 단위로 분류해 필수 항목
+        유무를 판별하는 모델을 개발하고, 생성형 모델/chatGPT 등을 활용해 2가지
+        이상의 피드백 옵션을 제안한다.
+      </div>
+ 
     </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('scroll', function() {
+            const title = document.querySelector('.title');
+            const maxHeight = window.innerHeight / 5;
+            const scrollRatio = Math.min(0.5, window.scrollY / maxHeight);
+            title.style.color = `rgb(${255 * scrollRatio}, ${0}, ${255 * (1 - scrollRatio)})`;
+        });
+      });
+      document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM fully loaded and parsed');
+      window.addEventListener('scroll', function() {
+          console.log('Scrolling...');
+          });
+      });
+    </script>
+
   </body>
 </html>

@@ -4,11 +4,11 @@ body, html {
   padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: stretch; 
+  align-items: stretch;
   background-color: #f4f4f4;
-  width: 100%; 
+  width: 100%;
+  overflow: hidden; /* Prevents scrolling on the body itself */
 }
-
 .header {
   display: flex;
   justify-content: space-between;
@@ -16,8 +16,15 @@ body, html {
   padding: 10px 20px;
   background-color: #333;
   color: #fff;
-  width: 100%; 
-  box-sizing: border-box; 
+  box-sizing: border-box;
+}
+
+.logo {
+  font-size: 1.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .main-content {
@@ -40,8 +47,12 @@ form {
 }
 #label-username,
 #label-password {
-    align-self: flex-start;
+  align-self: flex-start;
 }
+#label-password {
+  margin-top: 20px;
+}
+
 input[type="text"],
 input[type="password"],
 .lower-login {
@@ -52,10 +63,6 @@ input[type="password"],
   border: 2px solid;
   border-color: #a3a3a3;
   border-radius: 10px;
-}
-
-.upper-login {
-    width: 100px;
 }
 
 .line {
@@ -82,12 +89,17 @@ button.lower-login, button.signup{
   width: 100%; 
   padding: 10px;
   margin: 5px 0;
-  background-color: #a3a3a3; /* Adjusted for uniform color */
+  background-color: #487AFF; 
   color: black;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: pointer;  
 }
+
+button.lower-login {
+  margin-top: 20px;
+}
+
 button.reset-password {
     width: 100%; 
     padding: 10px;
@@ -97,14 +109,17 @@ button.reset-password {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 20px;
 }
 button.upper-login {
   width: 100px;
-  background-color: #a3a3a3; /* Adjusted for uniform color */
+  background-color: #a3a3a3; 
   color: black;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-left: auto;
+  margin-top: 1px;
 }
 
 button:hover {
@@ -115,11 +130,4 @@ button:hover {
     color: red;
     font-size: 0.9em;
     margin: 5px 0;
-}
-
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    padding: 10px 20px; /* Increased padding for smaller screens */
-  }
 }

@@ -1,17 +1,12 @@
-from fastapi import (
-    FastAPI,
-    Request,
-    Form,
-    HTTPException,
-    Depends,
-    UploadFile,
-    File,
-    Response,
-)
+from fastapi import FastAPI, Request, Form, HTTPException, Response, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import Column, String
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.future import select
+from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 import hashlib
 import uvicorn
@@ -20,30 +15,73 @@ from openai import OpenAI
 
 app = FastAPI()
 
+# Database setup
+DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+Base = declarative_base()
+engine = create_async_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine, class_=AsyncSession
+)
 
+
+# OpenAI client setup
 def create_openai_client():
     api_key = ""
     return OpenAI(api_key=api_key)
 
 
 client = create_openai_client()
-
-logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Template and static files configuration
 templates = Jinja2Templates(directory="App/templates")
-styles_dir = Path(__file__).parent / "static"
-app.mount("/static", StaticFiles(directory=str(styles_dir)), name="static")
-
-users = {
-    "john_doe": {
-        "username": "john_doe",
-        "password": hashlib.sha256("password123".encode()).hexdigest(),
-    }
-}
+app.mount(
+    "/static",
+    StaticFiles(directory=str(Path(__file__).parent / "static")),
+    name="static",
+)
 
 
+# User model
+class User(Base):
+    __tablename__ = "users"
+    username = Column(String, primary_key=True)
+    password = Column(String)
+
+
+# Database initialization
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+# Dependency to get database session
+async def get_session() -> AsyncSession:
+    async with SessionLocal() as session:
+        yield session
+
+
+# Utility functions for user handling
+async def get_user_by_username(username: str, session: AsyncSession):
+    stmt = select(User).where(User.username == username)
+    result = await session.execute(stmt)
+    return result.scalars().first()
+
+
+async def user_exists(username: str, session: AsyncSession) -> bool:
+    return await get_user_by_username(username, session) is not None
+
+
+async def add_user(username: str, password: str, session: AsyncSession):
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    user_instance = User(username=username, password=hashed_password)
+    session.add(user_instance)
+    await session.commit()
+
+
+# Route handlers
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -55,13 +93,25 @@ async def signup_form(request: Request):
 
 
 @app.post("/signup")
-async def handle_signup(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...), confirm_password: str = Form(...)):
+async def handle_signup(
+    request: Request,
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    session: AsyncSession = Depends(get_session),
+):
     if password != confirm_password:
-        return templates.TemplateResponse("signup.html", {"request": request, "error_message": "Passwords do not match"})
-    if username in users:
-        return templates.TemplateResponse("signup.html", {"request": request, "error_message": "Username already exists"})
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    users[username] = {"username": username, "password": hashed_password}
+        return templates.TemplateResponse(
+            "signup.html",
+            {"request": request, "error_message": "Passwords do not match"},
+        )
+    if await user_exists(username, session):
+        return templates.TemplateResponse(
+            "signup.html",
+            {"request": request, "error_message": "Username already exists"},
+        )
+    await add_user(username, password, session)
     return RedirectResponse(url="/login", status_code=302)
 
 
@@ -71,67 +121,70 @@ async def login_form(request: Request):
 
 
 @app.post("/login")
-async def login(request: Request, username: str = Form(...), password: str = Form(...)):
-    logger.debug(
-        f"Received login request with username: {username}, password: {password}"
-    )
-
-    user = users.get(username)
-    if user and user["password"] == hashlib.sha256(password.encode()).hexdigest():
-        logger.debug("Login successful: User authenticated")
-        response = RedirectResponse(url=f"/{username}", status_code=302)
-        response.set_cookie(key="username", value=username, httponly=True)
+async def login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    session: AsyncSession = Depends(get_session),
+):
+    user = await get_user_by_username(username, session)
+    if user and user.password == hashlib.sha256(password.encode()).hexdigest():
+        logger.debug("Login successful")
+        response = RedirectResponse(url="/user_page", status_code=302)
+        response.set_cookie(
+            key="username",
+            value=username,
+            httponly=True,
+            secure=request.url.scheme == "https",
+            samesite="Lax",
+        )
         return response
     else:
         logger.error("Login failed: Invalid username or password")
-        raise HTTPException(
-            status_code=401, detail="Invalid username or password")
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request, "error_message": "Invalid username or password"},
+        )
 
 
 @app.post("/logout")
-async def logout(response: Response):
+async def logout(request: Request):
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("username")
-    response.delete_cookie("analysis_result")  # 추가된 쿠키 삭제
     return response
 
 
-@app.get("/{username}", response_class=HTMLResponse)
-async def user_page(request: Request, username: str):
-    user_cookie = request.cookies.get("username")
-    if not user_cookie or user_cookie != username:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    user = users.get(username)
+@app.get("/user_page", response_class=HTMLResponse)
+async def user_page(request: Request, session: AsyncSession = Depends(get_session)):
+    username = request.cookies.get("username")
+    user = await get_user_by_username(username, session) if username else None
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    analysis_result = request.cookies.get("analysis_result", "")
+        logger.error("Unauthorized access attempt")
+        raise HTTPException(status_code=401, detail="Unauthorized")
     return templates.TemplateResponse(
-        "user_page.html", {"request": request, "user": {
-            "username": username}, "analysis_result": analysis_result}
+        "user_page.html", {"request": request, "user": user}
     )
 
 
-@app.route("/result", methods=["POST"])
-async def result():
-    pass
-
-
 @app.post("/generation")
-async def chat_analysis(request: Request, job_title: str = Form(...), text: str = Form(...)):
+async def chat_analysis(
+    request: Request, job_title: str = Form(...), text: str = Form(...)
+):
     analysis_result = await get_gpt_response(job_title, text)
     return Response(content=analysis_result, media_type="text/plain")
 
 
 async def get_gpt_response(job_title: str, text: str) -> str:
-    prompt = f"자소서 내용 분석 (직무: {job_title}): {text}\n" \
-             "1. 해당 직무에 필요한 경험, 지원 동기 및 포부, 강점, 단점이 얼마나 잘 매치되는지 분석해줘.\n" \
-             "2. 누락된 요소나 추가할 내용이 있는지 제안해줘."
+    prompt = (
+        f"자소서 내용 분석 (직무: {job_title}): {text}\n"
+        "1. 해당 직무에 필요한 경험, 지원 동기 및 포부, 강점, 단점이 얼마나 잘 매치되는지 분석해줘.\n"
+        "2. 누락된 요소나 추가할 내용이 있는지 제안해줘.\n"
+        "3. 빈줄없이 출력해줘\n"
+        "4. 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘."
+    )
     try:
         chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="gpt-4-turbo"
+            messages=[{"role": "user", "content": prompt}], model="gpt-4-turbo"
         )
         return chat_completion.choices[0].message.content
     except Exception as e:
@@ -139,12 +192,6 @@ async def get_gpt_response(job_title: str, text: str) -> str:
         return f"서버 오류 발생: {str(e)}"
 
 
-@app.route("/generation", methods=["POST"])
-async def generation():
-    pass
-
-
 if __name__ == "__main__":
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8888,
-                log_level="debug", reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8888, log_level="debug", reload=True)

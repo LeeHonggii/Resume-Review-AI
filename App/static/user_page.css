@@ -4,10 +4,9 @@ body, html {
   padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: stretch; 
   background-color: #f4f4f4;
-  width: 100%;
-  overflow: hidden; /* Prevents scrolling on the body itself */
+  width: 100%; 
 }
 
 .header {
@@ -17,7 +16,8 @@ body, html {
   padding: 10px 20px;
   background-color: #333;
   color: #fff;
-  box-sizing: border-box;
+  width: 100%; 
+  box-sizing: border-box; 
 }
 
 .logo {
@@ -32,96 +32,12 @@ body, html {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Two columns of equal width */
   gap: 20px;
-  width: 100%;
+  width: 100vw; /* Full width of the viewport */
   flex-grow: 1; /* Allows the content area to grow and fill available space */
   overflow-y: auto; /* Enables scrolling within the content area if needed */
-  padding: 20px;
+  padding: 20px; /* Padding included in the width */
+  box-sizing: border-box; /* Include padding and border in the element's width */
   margin: auto;
-}
-
-.footer {
-  display: flex;
-  justify-content: space-between;
-  /* This will put space between items, aligning one to the left and one to the right */
-  align-items: center;
-  /* This aligns items vertically in the center */
-  padding: 10px 20px;
-  background-color: #333;
-  color: white;
-  width: 100%;
-  /* Ensures the footer spans the entire width of the viewport */
-}
-
-.footer p,
-.footer form {
-  flex: 1;
-  /* Each child will take up equal space in the footer */
-  display: flex;
-  align-items: center;
-  /* Ensures vertical alignment is centered within each block */
-  margin: 0;
-  /* Removes default margin */
-}
-
-.footer a {
-  color: white;
-  /* Ensures the text color is white */
-  text-decoration: none;
-  /* Removes underline from the link */
-}
-
-.footer a:hover {
-  text-decoration: underline;
-  /* Adds an underline on hover for better UX */
-}
-
-.footer form {
-  justify-content: flex-end;
-  /* Aligns the form to the right within its flex container space */
-}
-
-.footer button {
-  padding: 8px 16px;
-  /* Adds padding within the button */
-  background-color: #a3a3a3;
-  /* Sets the background color */
-  color: black;
-  /* Sets the text color */
-  border: none;
-  /* Removes the border */
-  border-radius: 4px;
-  /* Rounds the corners */
-  cursor: pointer;
-  /* Changes the cursor to a pointer */
-  margin-right: 100px;
-}
-
-.footer button:hover {
-  background-color: #888;
-  /* Changes the background color on hover */
-}
-
-@media (max-width: 1024px) {
-  .main-content {
-    grid-template-columns: 1fr; /* Stacks the columns vertically */
-  }
-}
-
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .logo, .login-form {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .login-form button {
-    width: 100%;
-  }
 }
 
 input[type="text"], textarea {
@@ -131,10 +47,11 @@ input[type="text"], textarea {
   margin-bottom: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  resize: none;
 }
 
 textarea#personal-statement {
-  height: 30vh;
+  height: 30vw;
 }
 
 .feedback {
@@ -152,8 +69,25 @@ textarea#personal-statement {
   margin-right: 20px;
 }
 
-#tinymde1 {
-  height: 300px; 
-  overflow-y: scroll; 
-  border: 1px solid #c0c0c0;
+#toolbar {
+  width: auto;
+  height: auto;
+}
+
+#editor {
+  width: auto;
+  height: auto;
+}
+
+.submit-ps {
+  transform: translateX(20vw);
+  width: 130px;
+  height: 30px;
+  background-color: #c0c0c0;
+  border-radius: 10px;
+  border: none;
+}
+
+.submit-ps:hover {
+  background-color: blue;
 }

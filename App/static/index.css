@@ -1,18 +1,13 @@
-body,
-html {
+body, html {
   height: 100%;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   background-color: #f4f4f4;
+  width: 100%;
 }
-
-.body {
-  font-size: calc(1em + 0.5vw);
-}
-
 .header {
   display: flex;
   justify-content: space-between;
@@ -20,182 +15,87 @@ html {
   padding: 10px 20px;
   background-color: #333;
   color: #fff;
-  width: 100%;
   box-sizing: border-box;
 }
-
-.login-form {
-  margin-left: auto;
-  margin-right: 70px;
+button.upper-login {
   width: 100px;
+  background-color: #a3a3a3; 
   color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-top: 1px;
+}
+.logo {
+  font-size: 1.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .main-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   max-width: 1920px;
-  min-height: calc(100vh - 60px);
-  align-items: center;
+  gap: 20px;
 }
 
 .title-section {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: auto;
-  margin: auto;
-  transform: translateY(-100px);
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+  margin: 0; /* Reset any default margin */
 }
 
 .title {
   font-family: "Alfa Slab One", serif;
   font-weight: 400;
   font-style: normal;
-  text-align: left;
-  font-size: min(max(8vw, 32px), 90px);
-  margin: 0;
-  margin-left: 1vw;
-  /* Dynamic left margin */
-  margin-bottom: 5vh;
-  /* Dynamic bottom margin based on viewport height */
+  text-align: center;
+  font-size: min(max(8vw, 32px), 120px);
+  color: #333;
 }
 
-.right-content {
+.centered-group {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: auto;
-  padding: 20px;
-  margin-bottom: 0;
+  width: 100%;
+  gap: 20px;
 }
 
 .explanation {
-  flex-grow: 1;
   display: flex;
-  font-size: calc(1vw);
+  width: 30%;
+  height: 100vh;
+  font-size: 1vw; 
   flex-direction: column;
   justify-content: center;
-  text-align: right;
-  padding-left: 130px;
-  margin-left: 300px;
-  margin-right: 200px;
-  margin-top: 100px;
+  text-align: center;
+  margin: auto;
 }
 
 .start-form {
   display: flex;
-  margin-top: 30px;
-  margin-left: auto;
-  margin-right: 200px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .start-button {
-  width: auto;
-  height: auto;
   padding: 10px 20px;
   font-size: calc(0.5em + 1vw);
-  background-color: #333;
+  background-color: #487AFF;
   border: none;
   border-radius: 10px;
 }
 
-@media (max-width: 1920px) {
-  .title {
-    font-size: calc(120px * 100vw / 1920);
-    /* Responsive font size */
-  }
-
-  .explanation {
-    font-size: 0.7em;
-  }
-}
-
-@media (max-width: 1024px) {
-
-  .main-content,
-  .title-section,
-  .right-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    padding: 10px;
-  }
-
-  .title {
-    font-size: 7vw;
-  }
-
-  .explanation {
-    margin: 20px;
-    font-size: 3vw;
-  }
-}
-
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    padding: 5px 10px;
-    /* Even thinner padding for smaller screens */
-  }
-
-  .title {
-    font-size: 8vw;
-    margin-left: 5px;
-    margin-bottom: 20px;
-  }
-
-  .explanation {
-    font-size: 3vw;
-  }
-
-  .login-form {
-    margin-right: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-
-  .header,
-  .title-section,
-  .right-content,
-  .explanation {
-    padding: 5px;
-    /* Minimal padding */
-  }
-
-  .title {
-    margin-left: 10px;
-    margin-bottom: 10px;
-  }
-}
-
-@media (max-width: 600px) {
-
-  .main-content,
-  .title-section,
-  .right-content,
-  .explanation {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 10px;
-  }
-
-  .title {
-    font-size: 10vw;
-    margin: 10px;
-  }
-
-  .explanation {
-    font-size: 5vw;
-    margin: 10px;
-  }
-
-  .header {
-    flex-direction: column;
-  }
-}
