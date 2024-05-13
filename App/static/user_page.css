@@ -151,3 +151,9 @@ textarea#personal-statement {
   margin-left: 20px;
   margin-right: 20px;
 }
+
+#tinymde1 {
+  height: 300px; 
+  overflow-y: scroll; 
+  border: 1px solid #c0c0c0;
+}
