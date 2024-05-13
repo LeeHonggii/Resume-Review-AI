@@ -1,47 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <link rel="stylesheet" href="/static/login.css" />
-</head>
+  </head>
 
-<body>
-
+  <body>
     <header class="header">
       <div class="logo"><a href="/" class="title-logo">Service Title</a></div>
       <form action="/login" method="get" class="login-form">
         <button type="submit" class="upper-login">로그인</button>
       </form>
     </header>
-    <div class="navigation-bar"></div>
+    <hr class="navigation-bar" />
 
     <div class="main-content">
-        <h2 class="info">아이디로 로그인</h2>
-        <form action="/login" method="post">
-            <label for="username" id="label-username">아이디</label>
-            <input type="text" name="username" placeholder="Username" id="username" required>
-            <label for="password" id="label-password">비밀번호</label>
-            <input type="password" name="password" placeholder="Password" id="password" required>
-            <button type="submit" class="lower-login">로그인</button>
-        </form>
-        <div class="line">또는</div>
+      <h2 class="info">아이디로 로그인</h2>
+      <form action="/login" method="post">
+        <label for="username" id="label-username">아이디</label>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          id="username"
+          required
+        />
+        <label for="password" id="label-password">비밀번호</label>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          id="password"
+          required
+        />
+        <button type="submit" class="lower-login">로그인</button>
+      </form>
+      <div class="line">또는</div>
 
-        <form action="/signup" method="get">
-            <button type="submit" class="signup">회원가입</button>
-        </form>
+      <form action="/signup" method="get">
+        <button type="submit" class="signup">회원가입</button>
+      </form>
 
-        <form action="/" method="get">
-            <button type="submit" class="reset-password">비밀번호 재설정</button>
-        </form>
-        {% if error_message %}
-            <div class="error">{{ error_message }}</div>
-        {% endif %}
-        
+      <form action="/" method="get">
+        <button type="submit" class="reset-password">비밀번호 재설정</button>
+      </form>
+      {% if error_message %}
+      <div class="error">{{ error_message }}</div>
+      {% endif %}
     </div>
-    
-</body>
-
+  </body>
 </html>

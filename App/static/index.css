@@ -13,12 +13,19 @@ body, html {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #333;
   color: #fff;
+  font-weight: 600;
   box-sizing: border-box;
 }
+
+.navigation-bar {
+  width: 100vw;
+  border: 2px solid #D9D9D9;
+}
+
 button.upper-login {
   width: 100px;
+  height: 2em;
   background-color: #a3a3a3; 
   color: black;
   border: none;
@@ -64,9 +71,10 @@ button.upper-login {
   font-family: "Alfa Slab One", serif;
   font-weight: 400;
   font-style: normal;
-  text-align: center;
+  text-align: left;
   font-size: min(max(8vw, 32px), 120px);
-  color: #333;
+  color: blue;
+  margin-bottom: 100px;
 }
 
 .centered-group {
@@ -94,6 +102,7 @@ button.upper-login {
   justify-content: center;
   align-items: center;
   width: 100%;
+  margin-top: 80px;
 }
 
 .start-button {
@@ -102,5 +111,6 @@ button.upper-login {
   background-color: #487AFF;
   border: none;
   border-radius: 10px;
+
 }
 

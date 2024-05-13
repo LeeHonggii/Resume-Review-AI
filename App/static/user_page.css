@@ -14,12 +14,15 @@ body, html {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #333;
   color: #fff;
   width: 100%; 
+  font-weight: 600;
   box-sizing: border-box; 
 }
-
+.navigation-bar {
+  width: 100vw;
+  border: 2px solid #D9D9D9;
+}
 .logo {
   font-size: 1.5em;
   white-space: nowrap;
@@ -54,7 +57,7 @@ input[type="text"], textarea {
 }
 
 textarea#personal-statement {
-  height: 30vw;
+  height: 25vw;
 }
 
 .feedback {

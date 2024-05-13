@@ -1,78 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/user_page.css" />
     <title>User Profile</title>
-    <script src="https://cdn.tiny.cloud/1/no-API-Key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    <script
+      src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js"
+      referrerpolicy="origin"
+    ></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const useDarkMode = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
         tinymce.init({
-            selector: 'textarea',
-            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-            tinycomments_mode: 'embedded',
-            tinycomments_author: 'Author name',
-            mergetags_list: [
-              { value: 'First.Name', title: 'First Name' },
-              { value: 'Email', title: 'Email' },
-            ],
-            ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
-          });
+          selector: "textarea",
+          plugins:
+            "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+          toolbar:
+            "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+          tinycomments_mode: "embedded",
+          tinycomments_author: "Author name",
+          mergetags_list: [
+            { value: "First.Name", title: "First Name" },
+            { value: "Email", title: "Email" },
+          ],
+          ai_request: (request, respondWith) =>
+            respondWith.string(() =>
+              Promise.reject("See docs to implement AI Assistant")
+            ),
+        });
 
         function updateCount(editor) {
-            var content = editor.getContent({format: 'text'});
-            var charCount = content.length;
-            var wordCount = content.split(/\s+/).filter(function(n) { return n != '' }).length;
-            document.getElementById('mce_full-count').innerText = `${charCount} characters, ${wordCount} words`;
+          var content = editor.getContent({ format: "text" });
+          var charCount = content.length;
+          var wordCount = content.split(/\s+/).filter(function (n) {
+            return n != "";
+          }).length;
+          document.getElementById(
+            "mce_full-count"
+          ).innerText = `${charCount} characters, ${wordCount} words`;
         }
 
-        const inputs = document.querySelectorAll('input[type="text"], textarea:not(#mce_full)');
-        inputs.forEach(input => {
-            input.addEventListener("input", function() {
-                var count = this.value.length;
-                var max = this.getAttribute("maxlength");
-                var countId = this.id + "-count";
-                document.getElementById(countId).innerText = `${count}/${max}`;
-            });
+        const inputs = document.querySelectorAll(
+          'input[type="text"], textarea:not(#mce_full)'
+        );
+        inputs.forEach((input) => {
+          input.addEventListener("input", function () {
+            var count = this.value.length;
+            var max = this.getAttribute("maxlength");
+            var countId = this.id + "-count";
+            document.getElementById(countId).innerText = `${count}/${max}`;
+          });
         });
-    });
-</script>
-</head>
-<body>
+      });
+
+      (function () {
+        var autoSave = new Object();
+        (function (obj) {
+          obj.configuration = {
+            interval: 6, // Auto-save interval in seconds
+          };
+          obj.bindTimer = function () {
+            var textEle = document.querySelector("#mce_full");
+            var textVal = textEle.value;
+            var ref1, ref2, ref3; // Newer -> Older
+
+            // Save to cookies
+            var encodedTextVal = btoa(textVal);
+            ref1 = getCookie("textval-01");
+            ref2 = getCookie("textval-02");
+
+            if (encodedTextVal != ref1) {
+              setCookie("textval-01", encodedTextVal, 7);
+              setCookie("textval-02", ref1, 7);
+              setCookie("textval-03", ref2, 7);
+              displayAutoSaveMessage(
+                "Auto-saved at " + new Date().toLocaleTimeString()
+              );
+            }
+          };
+
+          obj.start = function () {
+            obj.bindTimer();
+            setTimeout(function () {
+              obj.start();
+            }, obj.configuration.interval * 1000);
+          };
+
+          // Helper functions to handle cookies
+          function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+              var date = new Date();
+              date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+              expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+          }
+
+          function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(";");
+            for (var i = 0; i < ca.length; i++) {
+              var c = ca[i];
+              while (c.charAt(0) == " ") c = c.substring(1, c.length);
+              if (c.indexOf(nameEQ) == 0)
+                return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+          }
+
+          function displayAutoSaveMessage(message) {
+            var messageEle = document.getElementById("autoSaveMessage");
+            if (!messageEle) {
+              messageEle = document.createElement("div");
+              messageEle.id = "autoSaveMessage";
+              document.body.appendChild(messageEle);
+            }
+            messageEle.textContent = message;
+            messageEle.style.position = "fixed";
+            messageEle.style.bottom = "10px";
+            messageEle.style.right = "10px";
+            messageEle.style.backgroundColor = "lightgreen";
+            messageEle.style.padding = "10px";
+            messageEle.style.borderRadius = "5px";
+            messageEle.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+            setTimeout(function () {
+              messageEle.style.display = "none";
+            }, 5000); // Message disappears after 5 seconds
+          }
+
+          obj.start();
+        })(autoSave);
+      })();
+    </script>
+  </head>
+  <body>
     <header class="header">
-        <div class="logo"><a href="/" class="title-logo">Service Title</a></div>
+      <div class="logo"><a href="/" class="title-logo">Service Title</a></div>
     </header>
 
-    <nav class="navigation-bar"></nav>
+    <hr class="navigation-bar" />
 
     <form action="/logout" method="post">
       <button type="submit" class="logout">Logout</button>
     </form>
     <div class="main-content">
-        <section class="your-work">
-            <h2>자소서</h2>
-            <form action="/generation" method="post">
-                <div class="input-group">
-                    <label for="job_title">지원직무</label>
-                    <input type="text" name="job_title" id="job_title" placeholder="지원 직무에 대해 입력해주세요." maxlength="20" required />
-                    <span id="job_title-count">0/20</span>
-                </div>
-                <div class="input-group">
-                  <label for="text">자기소개서 본문</label>
-                  <textarea name="text" id="personal-statement" placeholder="자기소개서 본문을 입력해주세요." maxlength="2000" required></textarea>
-                  <span id="personal-statement-count">0/2000</span>
-                </div>
-                <button type="submit" class="submit-ps">피드백 받기</button>
-            </form>
-        </section>
-        <section class="feedback">
-            <h2 class="feedback-title">피드백</h2>
-            <textarea id="mce_full"></textarea>
-        </section>
+      <section class="your-work">
+        <h2>자소서</h2>
+        <form action="/generation" method="post">
+          <div class="input-group">
+            <label for="job_title">지원직무</label>
+            <input
+              type="text"
+              name="job_title"
+              id="job_title"
+              placeholder="지원 직무에 대해 입력해주세요."
+              maxlength="20"
+              required
+            />
+            <span id="job_title-count">0/20</span>
+          </div>
+          <div class="input-group">
+            <label for="text">자기소개서 본문</label>
+            <textarea
+              name="text"
+              id="personal-statement"
+              placeholder="자기소개서 본문을 입력해주세요."
+              maxlength="2000"
+              required
+            ></textarea>
+            <span id="personal-statement-count">0/2000</span>
+          </div>
+          <button type="submit" class="submit-ps">피드백 받기</button>
+        </form>
+      </section>
+      <section class="feedback">
+        <h2 class="feedback-title">피드백</h2>
+        <textarea id="mce_full"></textarea>
+      </section>
     </div>
-
-</body>
-</html>s
+    <div
+      id="autoSaveNotification"
+      style="
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #f0f0f0;
+        color: black;
+        padding: 8px 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+      "
+    >
+      Not saved yet
+    </div>
+  </body>
+</html>

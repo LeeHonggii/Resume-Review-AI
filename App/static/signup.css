@@ -14,12 +14,15 @@ body, html {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #333;
   color: #fff;
   width: 100%; 
+  font-weight: 600;
   box-sizing: border-box; 
 }
-
+.navigation-bar {
+    width: 100vw;
+    border: 2px solid #D9D9D9;
+}
 button.upper-login {
   width: 100px;
   background-color: #a3a3a3; 
@@ -28,16 +31,21 @@ button.upper-login {
   border-radius: 5px;
   cursor: pointer;
   margin-left: auto;
+  height: 2em;
 }
 
 .logo {
-  font-size: 1.5em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 0;
+    font-size: 1.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
 }
 
+.title-logo {
+    text-decoration: none;
+    color: #a3a3a3;
+}
 .main-content {
   display: flex;
   flex-direction: column;
