@@ -27,7 +27,10 @@ body, html {
   text-overflow: ellipsis;
   flex-shrink: 0;
 }
-
+.title-logo {
+    text-decoration: none;
+    color: #a3a3a3;
+}
 .main-content {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Two columns of equal width */

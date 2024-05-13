@@ -35,6 +35,11 @@ button.upper-login {
   flex-shrink: 0;
 }
 
+.title-logo {
+  text-decoration: none;
+  color: #a3a3a3;
+}
+
 .main-content {
   display: flex;
   flex-direction: column;
