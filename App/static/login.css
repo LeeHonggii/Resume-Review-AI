@@ -1,3 +1,9 @@
+* {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 20px; 
+  font-weight: 800;
+}
+
 body, html {
   height: 100%;
   margin: 0;
@@ -9,30 +15,44 @@ body, html {
   width: 100%;
   overflow: hidden; /* Prevents scrolling on the body itself */
 }
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
+  margin-top: 10px;
   color: #fff;
-  font-weight: 600;
   box-sizing: border-box;
+  position: relative; /* Needed for absolute positioning of the pseudo-element */
 }
-.navigation-bar {
-  width: 100vw;
-  border: 2px solid #D9D9D9;
+
+.header::after {
+  content: ""; /* Necessary for the pseudo-element to show */
+  position: absolute;
+  bottom: 0; /* Align to the bottom of the header */
+  left: 0; /* Align to the left of the header */
+  width: 100%; /* Full width of the header */
+  height: 4px; /* Height of the bottom border */
+  background: linear-gradient(to right, #487AFF 40%, #4C7DFF 60%);
 }
+
 .logo {
-  font-size: 1.5em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-shrink: 0;
 }
+
 .title-logo {
   text-decoration: none;
-  color: #a3a3a3;
+  color: #487AFF;
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 30px;
 }
+
 .main-content {
   display: flex;
   flex-direction: column;
@@ -117,17 +137,7 @@ button.reset-password {
     cursor: pointer;
     margin-top: 20px;
 }
-button.upper-login {
-  width: 100px;
-  background-color: #a3a3a3; 
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: auto;
-  margin-top: 1px;
-  height: 2em;
-}
+
 
 button:hover {
     background-color: #a3a3a3;

@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/user_page.css" />
-    <title>User Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <title>Main page</title>
     <script src="https://cdn.tiny.cloud/1/NO-API-KEY/tinymce/7/tinymce.min.js" referrerpolicy="origin"
     ></script>
     <script>
@@ -17,6 +21,7 @@
         tinymce.init({
             selector: "#mce_full",
             resize: false,
+            menubar: false,
             setup: function (editor) {
                 editor.on('init', function () {
                     console.log('Editor is initialized and ready');
@@ -49,9 +54,9 @@
 
         function enforceMaxLength(editor) {
             var content = editor.getContent({format: 'raw'});
-            if (content.length > 3000) {
-                editor.setContent(content.substr(0, 3000)); 
-                showNotification("Word count exceeds 3000 characters!", 5000);
+            if (content.length > 2000) {
+                editor.setContent(content.substr(0, 2000)); 
+                showNotification("Word count exceeds 2000 characters!", 5000);
             }
         }
 
@@ -116,7 +121,7 @@
             var autoSave = new Object();
             (function (obj) {
                 obj.configuration = {
-                    interval: 10, // Auto-save interval in seconds
+                    interval: 300, // Auto-save interval in seconds
                 };
 
                 obj.bindTimer = function () {
@@ -181,14 +186,24 @@
   </head>
   <body>
     <header class="header">
-      <div class="logo"><a href="/" class="title-logo">Service Title</a></div>
+      <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
+      <div class="dropdown">
+      <button class="dropbtn">
+        ...
+      </button>
+      <div class="dropdown-content">
+        <form action="/" method="get">
+          <button type="submit" class="Home">Home</button>
+        </form>
+        <form action="/logout" method="post">
+          <button type="submit" class="logout">Logout</button>
+        </form>
+      </div>
+    </div>
     </header>
 
     <hr class="navigation-bar" />
 
-    <form action="/logout" method="post">
-      <button type="submit" class="logout">Logout</button>
-    </form>
     <div class="main-content">
       <section class="your-work">
         <h2 class="statement-title">자소서</h2>
@@ -223,21 +238,7 @@
         <div id="result">Result : </div>
       </section>
     </div>
-    <div
-      id="autoSaveNotification"
-      style="
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #f0f0f0;
-        color: black;
-        padding: 8px 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-      "
-    >
+    <div id="autoSaveNotification">
       Not saved yet
     </div>
   </body>

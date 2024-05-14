@@ -8,21 +8,26 @@ body, html {
   background-color: #f4f4f4;
   width: 100%; 
 }
-
+* {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 20px; 
+  font-weight: 800;
+}
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
+  margin-top: 10px;
   color: #fff;
   width: 100%; 
-  font-weight: 600;
   box-sizing: border-box; 
 }
 .navigation-bar {
     width: 100vw;
     border: 2px solid #D9D9D9;
 }
+
 button.upper-login {
   width: 100px;
   background-color: #a3a3a3; 
@@ -35,7 +40,6 @@ button.upper-login {
 }
 
 .logo {
-    font-size: 1.5em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -43,9 +47,14 @@ button.upper-login {
 }
 
 .title-logo {
-    text-decoration: none;
-    color: #a3a3a3;
+  text-decoration: none;
+  color: #a3a3a3;
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 30px;
 }
+
 .main-content {
   display: flex;
   flex-direction: column;

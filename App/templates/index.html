@@ -8,20 +8,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
   </head>
   <body>
       <header class="header">
-      <div class="logo"><a href="/" class="title-logo">Service Title</a></div>
+      <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
       <form action="/login" method="get" class="login-form">
-        <button type="submit" class="upper-login">로그인</button>
+        <button type="submit" class="upper-login" onmouseover="toggleNavbarColor(true)" onmouseout="toggleNavbarColor(false)">로그인</button>
       </form>
     </header>
-    <hr class="navigation-bar" />
     <div class="main-content">
       <div class="title-section">
-        <div class="title">revise <br> your own</div>
+        <div class="title">revise your own</div>
+        <div class="subtitle"><a class="title-explanation">ME:VISE에서 스스로 자기소개서를 완성해보세요!</a></div>
         <form action="/login" method="get" class="start-form">
-          <button type="submit" class="start-button">이용 시작</button>
+          <button type="submit" class="start-button" onmouseover="fillcolor(true)" onmouseout="fillcolor(false)">이용 시작</button>
         </form>
       </div>
 
@@ -33,20 +34,22 @@
  
     </div>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        window.addEventListener('scroll', function() {
-            const title = document.querySelector('.title');
-            const maxHeight = window.innerHeight / 5;
-            const scrollRatio = Math.min(0.5, window.scrollY / maxHeight);
-            title.style.color = `rgb(${255 * scrollRatio}, ${0}, ${255 * (1 - scrollRatio)})`;
-        });
-      });
-      document.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM fully loaded and parsed');
-      window.addEventListener('scroll', function() {
-          console.log('Scrolling...');
-          });
-      });
+      function toggleNavbarColor(add) {
+        const navbar = document.querySelector('.header');
+        if (add) {
+          navbar.classList.add('navigation-blue');
+        } else {
+          navbar.classList.remove('navigation-blue');
+        }
+      }
+      function fillcolor(add) {
+        const button = document.querySelector('.start-button');
+        if (add) {
+          button.classList.add('button-blue');
+        } else {
+          button.classList.remove('button-blue');
+        }
+      }
     </script>
 
   </body>

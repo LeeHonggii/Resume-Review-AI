@@ -8,34 +8,44 @@ body, html {
   background-color: #f4f4f4;
   width: 100%;
 }
+
+* {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 20px; 
+  font-weight: 800;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
   color: #fff;
-  font-weight: 600;
   box-sizing: border-box;
+  margin-top: 10px;
+  margin-bottom: auto;
+  border-bottom: 4px solid #a3a3a3;
+  transition: border 0.5s ease;
 }
 
-.navigation-bar {
-  width: 100vw;
-  border: 2px solid #D9D9D9;
+.navigation-blue {
+  border-bottom: 4px solid #4C7DFF; 
 }
 
 button.upper-login {
-  width: 100px;
-  height: 2em;
-  background-color: #a3a3a3; 
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: auto;
-  margin-top: 1px;
+  height: 100%; 
+  width: auto; 
+  background-color: transparent; 
+  color: black; 
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  padding: 0 20px; 
+  outline: none; 
+  align-self: stretch; 
 }
+
 .logo {
-  font-size: 1.5em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -44,7 +54,11 @@ button.upper-login {
 
 .title-logo {
   text-decoration: none;
-  color: #a3a3a3;
+  color: #4C7DFF;
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 30px;
 }
 
 .main-content {
@@ -67,14 +81,24 @@ button.upper-login {
   margin: 0; /* Reset any default margin */
 }
 
-.title {
+.title{
   font-family: "Alfa Slab One", serif;
   font-weight: 400;
   font-style: normal;
-  text-align: left;
-  font-size: min(max(8vw, 32px), 120px);
-  color: blue;
-  margin-bottom: 100px;
+  text-align: center;
+  font-size: min(max(8vw, 32px), 90px);
+  color: #4C7DFF;
+  margin-bottom: 50px;
+  margin-top: -50px;
+}
+
+.subtitle {
+  margin-bottom: 50px;
+}
+
+.title-explanation {
+  color: #a3a3a3;
+  font-size: min(max(2vw, 12px), 30px);
 }
 
 .centered-group {
@@ -90,7 +114,6 @@ button.upper-login {
   display: flex;
   width: 30%;
   height: 100vh;
-  font-size: 1vw; 
   flex-direction: column;
   justify-content: center;
   text-align: center;
@@ -106,11 +129,16 @@ button.upper-login {
 }
 
 .start-button {
+  width: calc(10vw + 80px);
   padding: 10px 20px;
-  font-size: calc(0.5em + 1vw);
-  background-color: #487AFF;
-  border: none;
+  border: 2px solid #4C7DFF;
   border-radius: 10px;
-
+  color: #4C7DFF;
+  transition: background-color 0.5s ease-in-out;
 }
 
+
+.button-blue {
+  background-color: #4C7DFF;
+  color: antiquewhite;
+}

@@ -11,6 +11,9 @@ body, html {
 }
 
 * {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 20px; 
+  font-weight: 800;
   box-sizing: border-box; /* Apply box-sizing to all elements */
 }
 
@@ -19,9 +22,9 @@ body, html {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
+  margin-top: 10px;
   color: #fff;
   width: 100%;
-  font-weight: 600;
 }
 
 .navigation-bar {
@@ -31,16 +34,21 @@ body, html {
 
 
 .logo {
-  font-size: 1.5em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-shrink: 0;
 }
+
 .title-logo {
-    text-decoration: none;
-    color: #a3a3a3;
+  text-decoration: none;
+  color: #a3a3a3;
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 30px;
 }
+
 .main-content {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Two columns of equal width */
@@ -116,4 +124,68 @@ textarea#mce_full {
 
 .submit-ps:hover {
   background-color: blue;
+}
+
+#autoSaveNotification {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #36363696;
+  color: rgba(221, 230, 107, 0.781);
+  padding: 8px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  border: 1px solid rgb(37, 37, 37);
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  font-weight: 400;
+  color: rgb(37, 37, 37);
+  padding: 12px;
+  width: 200px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content form {
+  margin: 0; /* Remove default form margin */
+}
+
+.dropdown-content button {
+  color: black;
+  background-color: #f9f9f9; /* Matching the dropdown background */
+  padding: 12px 20px;
+  border: none;
+  display: block;
+  width: 100%; /* Full width to match dropdown */
+  text-align: left; /* Align text to left for consistency */
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dropdown-content button:hover {
+  background-color: #ececec; /* Light grey background on hover */
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
 }
