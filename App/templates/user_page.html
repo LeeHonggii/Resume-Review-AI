@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/user_page.css" />
     <title>User Profile</title>
-    <script
-      src="https://cdn.tiny.cloud/1/NO-api-key/tinymce/7/tinymce.min.js"
-      referrerpolicy="origin"
+    <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js" referrerpolicy="origin"
     ></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
@@ -22,6 +20,7 @@
             "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
           tinycomments_mode: "embedded",
           tinycomments_author: "Author name",
+          resize: false,
           mergetags_list: [
             { value: "First.Name", title: "First Name" },
             { value: "Email", title: "Email" },
@@ -149,7 +148,7 @@
     </form>
     <div class="main-content">
       <section class="your-work">
-        <h2>자소서</h2>
+        <h2 class="statement-title">자소서</h2>
         <form action="/generation" method="post">
           <div class="input-group">
             <label for="job_title">지원직무</label>
@@ -167,7 +166,7 @@
             <label for="text">자기소개서 본문</label>
             <textarea
               name="text"
-              id="personal-statement"
+              id="mce_full"
               placeholder="자기소개서 본문을 입력해주세요."
               maxlength="2000"
               required
@@ -179,7 +178,7 @@
       </section>
       <section class="feedback">
         <h2 class="feedback-title">피드백</h2>
-        <textarea id="mce_full"></textarea>
+        <div id="result">Result : </div>
       </section>
     </div>
     <div

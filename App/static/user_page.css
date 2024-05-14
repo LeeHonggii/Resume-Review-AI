@@ -4,9 +4,14 @@ body, html {
   padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: stretch; 
+  align-items: stretch;
   background-color: #f4f4f4;
-  width: 100%; 
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+* {
+  box-sizing: border-box; /* Apply box-sizing to all elements */
 }
 
 .header {
@@ -15,14 +20,16 @@ body, html {
   align-items: center;
   padding: 10px 20px;
   color: #fff;
-  width: 100%; 
+  width: 100%;
   font-weight: 600;
-  box-sizing: border-box; 
 }
+
 .navigation-bar {
-  width: 100vw;
+  width: 100%;
   border: 2px solid #D9D9D9;
 }
+
+
 .logo {
   font-size: 1.5em;
   white-space: nowrap;
@@ -38,12 +45,13 @@ body, html {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Two columns of equal width */
   gap: 20px;
-  width: 100vw; /* Full width of the viewport */
-  flex-grow: 1; /* Allows the content area to grow and fill available space */
-  overflow-y: auto; /* Enables scrolling within the content area if needed */
-  padding: 20px; /* Padding included in the width */
-  box-sizing: border-box; /* Include padding and border in the element's width */
+  width: 100%; 
+  padding: 20px;
   margin: auto;
+}
+
+.input-group {
+  margin-top: 30px;
 }
 
 input[type="text"], textarea {
@@ -56,17 +64,27 @@ input[type="text"], textarea {
   resize: none;
 }
 
-textarea#personal-statement {
-  height: 25vw;
+.statement-title {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+textarea#mce_full {
+  height: 50vh;
+  resize: none;
+  width: 45vh;
 }
 
 .feedback {
-  background-color: #c9c9c9;
   margin-left: 20px;
   margin-right: 50px;
 }
+
 .feedback-title {
-  margin-left: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 .first-feedback, .second-feedback {
   background-color: #c9c9c9;
@@ -74,7 +92,9 @@ textarea#personal-statement {
   margin-left: 20px;
   margin-right: 20px;
 }
-
+#job_title {
+  width: 50vw;
+}
 #toolbar {
   width: auto;
   height: auto;

@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import Column, String
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
@@ -29,6 +29,15 @@ def create_openai_client():
     api_key = ""
     return OpenAI(api_key=api_key)
 
+
+from starlette.middleware.sessions import SessionMiddleware
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="your_secret_key_here",
+    session_cookie="session_id",
+    max_age=3600,  # Session timeout in seconds (1 hour)
+)
 
 client = create_openai_client()
 logging.basicConfig(level=logging.DEBUG)
@@ -64,7 +73,7 @@ async def get_session() -> AsyncSession:
 
 
 # Utility functions for user handling
-async def get_user_by_username(username: str, session: AsyncSession):
+async def get_user_by_username(username: str, session: AsyncSession) -> User:
     stmt = select(User).where(User.username == username)
     result = await session.execute(stmt)
     return result.scalars().first()
@@ -129,6 +138,7 @@ async def login(
 ):
     user = await get_user_by_username(username, session)
     if user and user.password == hashlib.sha256(password.encode()).hexdigest():
+        request.session["username"] = username  # Store user name in session
         logger.debug("Login successful")
         response = RedirectResponse(url="/user_page", status_code=302)
         response.set_cookie(
@@ -151,19 +161,24 @@ async def login(
 async def logout(request: Request):
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("username")
+    request.session.clear()  # Clear session data
     return response
 
 
 @app.get("/user_page", response_class=HTMLResponse)
 async def user_page(request: Request, session: AsyncSession = Depends(get_session)):
-    username = request.cookies.get("username")
+    username = request.session.get("username")
+    if not username:
+        return RedirectResponse(url="/signup", status_code=303)
+
     user = await get_user_by_username(username, session) if username else None
-    if not user:
+    if user:
+        return templates.TemplateResponse(
+            "user_page.html", {"request": request, "user": user}
+        )
+    else:
         logger.error("Unauthorized access attempt")
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return templates.TemplateResponse(
-        "user_page.html", {"request": request, "user": user}
-    )
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 @app.post("/generation")
