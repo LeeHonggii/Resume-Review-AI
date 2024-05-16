@@ -18,16 +18,19 @@
   </head>
 
   <body>
-    <div class="header">
+    <header class="header">
       <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
       <form action="/login" method="get" class="login-form">
-        <button type="submit" class="upper-login">로그인</button>
+        <button type="submit" class="upper-login" onmouseover="toggleNavbarColor(true)"
+          onmouseout="toggleNavbarColor(false)">
+          로그인
+        </button>
       </form>
-    </div>
+    </header>
 
     <div class="main-content">
       <h2 class="info">회원가입</h2>
-      <form method="post" action="/signup">
+      <form method="post" action="/signup" class="signupForm">
         <label for="username" id="label-username">아이디</label>
         <input
           type="text"
@@ -72,12 +75,53 @@
       <div class="line">또는</div>
 
       <form action="/login" method="get">
-        <button type="submit" class="reset-password">로그인</button>
+        <button type="submit" class="lower-login">로그인</button>
       </form>
 
-      {% if error_message %}
-      <div class="error">{{ error_message }}</div>
-      {% endif %}
-    </div>
+    <script>
+      function toggleNavbarColor(add) {
+        const navbar = document.querySelector(".header");
+        if (add) {
+          navbar.classList.add("navigation-blue");
+        } else {
+          navbar.classList.remove("navigation-blue");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        var signupForm = document.querySelector(".signupForm"); // Corrected the form selector
+        if (signupForm) {
+          signupForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            // Assuming failure condition for demonstration
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirm-password").value;
+
+            if (password !== confirmPassword) {
+              // Example condition for a mismatch in passwords
+              const mainContent = document.querySelector(".main-content");
+              mainContent.classList.add("shake-animation");
+              mainContent.addEventListener(
+                "animationend",
+                function () {
+                  mainContent.classList.remove("shake-animation");
+                },
+                { once: true }
+              );
+              console.error("Passwords do not match.");
+            } else {
+              // Handle successful signup here
+              console.log("Signup successful");
+              // Optionally, submit the form programmatically if needed
+              // signupForm.submit();
+            }
+          });
+        } else {
+          console.error("The signup form was not found.");
+        }
+      });
+    </script>
   </body>
 </html>

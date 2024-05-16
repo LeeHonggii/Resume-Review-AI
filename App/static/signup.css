@@ -1,84 +1,109 @@
-body, html {
+* {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+body,
+html {
   height: 100%;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: stretch; 
+  align-items: stretch;
   background-color: #f4f4f4;
-  width: 100%; 
-}
-
-* {
-  font-family: "Noto Sans KR", sans-serif;
-  font-size: 20px; 
-  font-weight: 800;
+  width: 100%;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    margin-top: 10px;
-    color: #fff;
-    background-color: #f4f4f4;
-    box-sizing: border-box;
-    position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  height: max-content;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  color: #fff;
+  background-color: #f4f4f4;
+  box-sizing: border-box;
+  padding-top: 10px;
+  margin-bottom: auto;
+  border-bottom: 4px solid #a3a3a3;
+  transition: border-bottom 0.5s ease-in-out;
+  z-index: 1;
 }
 
-.header::after {
-    content: "";
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 102%;
-    height: 4px;
-    background: linear-gradient(to right, #487AFF, #FFC0CB);
-}
-
-button.upper-login {
-  width: 100px;
-  background-color: #a3a3a3; 
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: auto;
-  height: 2em;
-}
-
-.logo {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
+.logo,
+.title-logo {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .title-logo {
-    text-decoration: none;
-    color: #487AFF;
-    font-family: "Alfa Slab One", serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 30px;
+  text-decoration: none;
+  color: #487AFF;
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 30px;
 }
-
+.navigation-blue {
+  border-bottom: 4px solid #4C7DFF;
+}
 .main-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%; 
-  max-width: 1920px; 
-  min-height: calc(100vh - 60px); 
-  margin: auto; 
-  margin-top: -40px;
+  width: 100%;
   position: relative;
+  margin-top: auto;
+  margin-bottom: auto;
+  transform: translateY(-40px);
+}
+
+/* Position the upper-login button to the right */
+button.upper-login {
+  height: 100%;
+  width: auto;
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0 20px;
+  outline: none;
+  align-self: stretch;
+  margin-left: auto;
+  /* Auto margin for alignment to the right */
+}
+.line {
+  width: 50vh;
+  display: flex;
+  align-items: center;
+  color: #888;
+  /* Updated for better visibility */
+  font-size: 14px;
+  margin: 8px 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.line::before,
+.line::after {
+  content: "";
+  flex-grow: 1;
+  margin: 0 16px;
+  background-color: #ccc;
+  /* Updated for better visibility */
+  height: 1px;
+  /* Ensure height is sufficient to be visible */
 }
 
 .info {
-    font-size: 30px;
+  font-size: 30px;
 }
 
 form {
@@ -86,104 +111,104 @@ form {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 300px; 
+  max-width: 300px;
 }
 
+/* Input labels */
 #label-username,
 #label-password,
 #label-email,
 #label-confirm-password {
-    align-self: flex-start;
-    margin-top: 5px;
+  align-self: flex-start;
+  margin-top: 5px;
 }
 
+/* Input fields */
 input[type="text"],
 input[type="password"],
 input[type="email"],
 .lower-login {
-  width: 100%; 
+  width: 100%;
   padding: 10px;
   margin: 5px 0;
   box-shadow: none;
-  border: 2px solid;
-  border-color: #a3a3a3;
+  border: 2px solid #a3a3a3;
   border-radius: 10px;
 }
 
 input[type='password'] {
-    border-color: rgb(155, 200, 200);
-}
-
-.upper-login {
-    width: 100px;
-}
-
-.line {
-    width: 50vh;
-    display: flex;
-    align-items: center;
-    color: #888; /* Updated for better visibility */
-    font-size: 14px;
-    margin: 8px 0;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-.line::before,
-.line::after {
-    content: "";
-    flex-grow: 1;
-    margin: 0 16px;
-    background-color: #ccc; /* Updated for better visibility */
-    height: 1px; /* Ensure height is sufficient to be visible */
-}
-
-button.lower-login, button.signup{
-  width: 100%; 
-  padding: 10px;
-  margin: 5px 0;
-  background-color: #a3a3a3; /* Adjusted for uniform color */
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-button.reset-password {
-    width: 100%; 
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #d9d9d9;
-    color: black;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-button.upper-login {
-  width: 100px;
-  background-color: #a3a3a3; /* Adjusted for uniform color */
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-    background-color: #a3a3a3;
+  border-color: #4879ff80;
 }
 
 button.signup {
-    margin-top: 20px;
+  width: 108%;
+  /* Full width for buttons */
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #487AFF;
+  /* Color adjustment */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
+/* Styling for lower login button */
+button.lower-login {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #c3c3c3;
+  /* Color adjustment */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 108%;
+}
+
+button.lower-login:hover,
+button.signup:hover {
+  background-color: #a3a3a3;
+}
+
+/* Margin for signup button */
+button.signup {
+  margin-top: 20px;
+}
+
+/* Error message styling */
 .error {
-    color: red;
-    font-size: 0.9em;
-    margin: 5px 0;
+  color: red;
+  font-size: 0.9em;
+  margin: 5px 0;
 }
 
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    padding: 10px 20px; /* Increased padding for smaller screens */
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0) translateY(-40px);
   }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-10px) translateY(-40px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(10px) translateY(-40px);
+  }
+}
+
+.shake-animation {
+  animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }

@@ -86,7 +86,7 @@ button.upper-login {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100vh;
+  height: 800px;
   margin: 0;
 }
 
@@ -99,7 +99,6 @@ button.upper-login {
   color: #4C7DFF;
   margin-bottom: 50px;
   margin-top: -50px;
-  position: relative;
 }
 
 .subtitle {
@@ -134,7 +133,6 @@ button.upper-login {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
   margin-top: 80px;
 }
 
@@ -153,48 +151,20 @@ button.upper-login {
   color: antiquewhite;
 }
 
-/* Responsive adjustments for viewport height less than 315px */
-@media (max-height: 315px) {
-  .header {
-    padding: 5px 10px;
-    /* Further reduce padding */
-    margin-top: 5px;
-    /* Reduce top margin */
-    margin-bottom: 10px;
-    /* Reduce bottom margin */
-  }
-
-  .main-content {
-    margin-top: 35px;
-    /* Slightly less margin than the default */
-    grid-gap: 10px;
-    /* Smaller gaps */
-  }
-
-  * {
-    font-size: 18px;
-    /* Reduce font size slightly */
+@media (max-width: 750px) {
+  .start-button {
+    width: calc(13vw + 60px);
+    padding: 1.3vh 4vw;
+    font-size: calc(1.5vw + 8px);
+    min-height: 30px;
   }
 }
 
-/* Responsive adjustments for viewport height less than 200px */
-@media (max-height: 200px) {
-  .header {
-    padding: 2px 5px;
-    /* Minimal padding to maximize space */
-    margin-top: 2px;
-    margin-bottom: 5px;
-  }
-
-  .main-content {
-    margin-top: 20px;
-    /* Minimal top margin */
-    grid-gap: 5px;
-    /* Minimal gaps */
-  }
-
-  * {
-    font-size: 16px;
-    /* Further reduce font size for extreme cases */
+@media (max-width: 480px) {
+  .start-button {
+    width: calc(18vw + 38px);
+    padding: 1.2vh 12px;
+    font-size: calc(2vw + 6px);
+    min-height: 25px;
   }
 }

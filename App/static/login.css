@@ -20,7 +20,6 @@ body, html {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  margin-top: 10px;
   background-color: #f4f4f4;
   color: #fff;
   box-sizing: border-box;
@@ -60,9 +59,10 @@ body, html {
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-top: 20px; 
-  padding-bottom: 20px; 
   position: relative;
+  margin-top: auto;
+  margin-bottom: auto;
+  transform: translateY(-30px);
 }
 
 form {
@@ -159,3 +159,33 @@ button,
 button.lower-login {
   width: 108%;
 } 
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0) translateY(-30px);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-10px) translateY(-30px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(10px) translateY(-30px);
+  }
+}
+
+.shake-animation {
+  animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

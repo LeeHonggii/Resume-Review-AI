@@ -24,7 +24,7 @@
 
     <div class="main-content">
       <h2 class="info">아이디로 로그인</h2>
-      <form action="/login" method="post">
+      <form action="/login" method="post" id="loginForm">
         <label for="username" id="label-username">아이디</label>
         <input
           type="text"
@@ -43,6 +43,7 @@
         />
         <button type="submit" class="lower-login">로그인</button>
       </form>
+
       <div class="line">또는</div>
 
       <form action="/signup" method="get">
@@ -52,9 +53,40 @@
       <form action="/" method="get">
         <button type="submit" class="reset-password">비밀번호 재설정</button>
       </form>
-      {% if error_message %}
-      <div class="error">{{ error_message }}</div>
-      {% endif %}
-    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var loginForm = document.getElementById("loginForm"); // Changed from .loginForm to #loginForm
+        if (loginForm) {
+          loginForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            // Assuming failure condition for demonstration
+            if (
+              username !== "correctUsername" ||
+              password !== "correctPassword"
+            ) {
+              const mainContent = document.querySelector(".main-content");
+              mainContent.classList.add("shake-animation");
+              mainContent.addEventListener(
+                "animationend",
+                function () {
+                  mainContent.classList.remove("shake-animation");
+                },
+                { once: true }
+              );
+            } else {
+              // Handle successful login here
+              console.log("Login successful");
+            }
+          });
+        } else {
+          console.error("The login form was not found.");
+        }
+      });
+    </script>
   </body>
 </html>
