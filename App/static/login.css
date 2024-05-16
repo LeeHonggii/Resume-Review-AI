@@ -13,7 +13,6 @@ body, html {
   align-items: stretch;
   background-color: #f4f4f4;
   width: 100%;
-  overflow: hidden; /* Prevents scrolling on the body itself */
 }
 
 .header {
@@ -22,22 +21,24 @@ body, html {
   align-items: center;
   padding: 10px 20px;
   margin-top: 10px;
+  background-color: #f4f4f4;
   color: #fff;
   box-sizing: border-box;
-  position: relative; /* Needed for absolute positioning of the pseudo-element */
+  position: relative;
 }
 
 .header::after {
-  content: ""; /* Necessary for the pseudo-element to show */
+  content: "";
   position: absolute;
-  bottom: 0; /* Align to the bottom of the header */
-  left: 0; /* Align to the left of the header */
-  width: 100%; /* Full width of the header */
-  height: 4px; /* Height of the bottom border */
-  background: linear-gradient(to right, #487AFF 40%, #4C7DFF 60%);
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, #487AFF, #FFC0CB);
 }
 
-.logo {
+.logo,
+.title-logo {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -58,10 +59,10 @@ body, html {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%; 
-  max-width: 1920px; 
-  min-height: calc(100vh - 60px); 
-  margin: auto; 
+  width: 100%;
+  margin-top: 20px; 
+  padding-bottom: 20px; 
+  position: relative;
 }
 
 form {
@@ -112,7 +113,6 @@ input[type="password"],
 }
 
 button.lower-login, button.signup{
-  width: 100%; 
   padding: 10px;
   margin: 5px 0;
   background-color: #487AFF; 
@@ -127,20 +127,26 @@ button.lower-login {
 }
 
 button.reset-password {
-    width: 100%; 
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #d9d9d9;
-    color: black;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #d9d9d9;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
 }
 
+button {
+  width: 100%;
+}
 
 button:hover {
     background-color: #a3a3a3;
+}
+
+.info {
+  font-size: 30px;
 }
 
 .error {
@@ -148,3 +154,8 @@ button:hover {
     font-size: 0.9em;
     margin: 5px 0;
 }
+
+button,
+button.lower-login {
+  width: 108%;
+} 

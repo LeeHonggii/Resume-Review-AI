@@ -5,52 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Service Title</title>
     <link rel="stylesheet" href="/static/index.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-      <header class="header">
+    <header class="header">
       <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
       <form action="/login" method="get" class="login-form">
-        <button type="submit" class="upper-login" onmouseover="toggleNavbarColor(true)" onmouseout="toggleNavbarColor(false)">로그인</button>
+        <button
+          type="submit"
+          class="upper-login"
+          onmouseover="toggleNavbarColor(true)"
+          onmouseout="toggleNavbarColor(false)"
+        >
+          로그인
+        </button>
       </form>
     </header>
     <div class="main-content">
       <div class="title-section">
         <div class="title">revise your own</div>
-        <div class="subtitle"><a class="title-explanation">ME:VISE에서 스스로 자기소개서를 완성해보세요!</a></div>
+        <div class="subtitle">
+          <a class="title-explanation"
+            >ME:VISE에서 스스로 자기소개서를 완성해보세요!</a
+          >
+        </div>
         <form action="/login" method="get" class="start-form">
-          <button type="submit" class="start-button" onmouseover="fillcolor(true)" onmouseout="fillcolor(false)">이용 시작</button>
+          <button
+            type="submit"
+            class="start-button"
+            onmouseover="fillcolor(true)"
+            onmouseout="fillcolor(false)"
+          >
+            이용 시작
+          </button>
         </form>
       </div>
 
       <div class="explanation">
-        (서비스 설명, 수정 예정) 사용자가 입력한 자유 형식의 자기소개서를 문장 단위로 분류해 필수 항목
-        유무를 판별하는 모델을 개발하고, 생성형 모델/chatGPT 등을 활용해 2가지
-        이상의 피드백 옵션을 제안한다.
+        (서비스 설명, 수정 예정) 사용자가 입력한 자유 형식의 자기소개서를 문장
+        단위로 분류해 필수 항목 유무를 판별하는 모델을 개발하고, 생성형
+        모델/chatGPT 등을 활용해 2가지 이상의 피드백 옵션을 제안한다.
       </div>
- 
     </div>
     <script>
       function toggleNavbarColor(add) {
-        const navbar = document.querySelector('.header');
+        const navbar = document.querySelector(".header");
         if (add) {
-          navbar.classList.add('navigation-blue');
+          navbar.classList.add("navigation-blue");
         } else {
-          navbar.classList.remove('navigation-blue');
+          navbar.classList.remove("navigation-blue");
         }
       }
       function fillcolor(add) {
-        const button = document.querySelector('.start-button');
+        const button = document.querySelector(".start-button");
         if (add) {
-          button.classList.add('button-blue');
+          button.classList.add("button-blue");
         } else {
-          button.classList.remove('button-blue');
+          button.classList.remove("button-blue");
         }
       }
     </script>
-
   </body>
 </html>
