@@ -24,7 +24,7 @@
 
     <div class="main-content">
       <h2 class="info">아이디로 로그인</h2>
-      <form action="/login" method="post" id="loginForm">
+      <form id="loginForm">
         <label for="username" id="label-username">아이디</label>
         <input
           type="text"
@@ -53,34 +53,48 @@
       <form action="/" method="get">
         <button type="submit" class="reset-password">비밀번호 재설정</button>
       </form>
+    </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        var loginForm = document.getElementById("loginForm"); // Changed from .loginForm to #loginForm
+        var loginForm = document.getElementById("loginForm");
         if (loginForm) {
-          loginForm.addEventListener("submit", function (event) {
+          loginForm.addEventListener("submit", async function (event) {
             event.preventDefault(); // Prevent the form from submitting normally
 
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
 
-            // Assuming failure condition for demonstration
-            if (
-              username !== "correctUsername" ||
-              password !== "correctPassword"
-            ) {
-              const mainContent = document.querySelector(".main-content");
-              mainContent.classList.add("shake-animation");
-              mainContent.addEventListener(
-                "animationend",
-                function () {
-                  mainContent.classList.remove("shake-animation");
+            try {
+              // Send the login data to the backend
+              let response = await fetch("/login", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
                 },
-                { once: true }
-              );
-            } else {
-              // Handle successful login here
-              console.log("Login successful");
+                body: new URLSearchParams({
+                  username: username,
+                  password: password,
+                }),
+              });
+
+              if (response.ok) {
+                // Handle successful login
+                window.location.href = "/user_page";
+              } else {
+                // Handle login failure
+                const mainContent = document.querySelector(".main-content");
+                mainContent.classList.add("shake-animation");
+                mainContent.addEventListener(
+                  "animationend",
+                  function () {
+                    mainContent.classList.remove("shake-animation");
+                  },
+                  { once: true }
+                );
+              }
+            } catch (error) {
+              console.error("Error logging in:", error);
             }
           });
         } else {
