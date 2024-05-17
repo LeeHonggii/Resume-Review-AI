@@ -19,32 +19,30 @@
       src="https://cdn.tiny.cloud/1/NO-API-KEY/tinymce/7/tinymce.min.js"
       referrerpolicy="origin"
     ></script>
+    
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // Check if the dark mode setting is being used correctly.
-        const useDarkMode = window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
+        const useDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
         console.log("Dark mode is " + (useDarkMode ? "enabled" : "disabled"));
 
-        // Initialize TinyMCE
         tinymce.init({
           selector: "#mce_full",
           resize: false,
           menubar: false,
+          toolbar: false,
           setup: function (editor) {
             editor.on("init", function () {
               console.log("Editor is initialized and ready");
-              enforceMaxLength(editor); // Check length at initialization
+              enforceMaxLength(editor);
               updateCount(editor);
             });
             editor.on("input", function () {
               updateCount(editor);
-              enforceMaxLength(editor); // Enforce max length during typing
+              enforceMaxLength(editor);
             });
             editor.on("change", function () {
               updateCount(editor);
-              enforceMaxLength(editor); // Enforce max length after changes
+              enforceMaxLength(editor);
               synchronizeTextarea(editor);
             });
           },
@@ -58,9 +56,7 @@
           if (countElement) {
             countElement.innerText = `${charCount} characters, ${wordCount} words`;
           } else {
-            console.error(
-              'The element with ID "mce_full-count" does not exist.'
-            );
+            console.error('The element with ID "mce_full-count" does not exist.');
           }
         }
 
@@ -73,9 +69,7 @@
         }
 
         function showNotification(message, duration) {
-          var notificationElement = document.getElementById(
-            "autoSaveNotification"
-          );
+          var notificationElement = document.getElementById("autoSaveNotification");
           if (!notificationElement) {
             console.error("Notification element not found");
             return;
@@ -93,54 +87,81 @@
           });
         }
 
-        document
-          .querySelectorAll('input[type="text"], textarea:not(#mce_full)')
-          .forEach((input) => {
-            input.addEventListener("input", function () {
-              var count = this.value.length;
-              var max = this.getAttribute("maxlength");
-              var countId = this.id + "-count";
-              var countElement = document.getElementById(countId);
+        document.querySelectorAll('input[type="text"], textarea:not(#mce_full)').forEach((input) => {
+          input.addEventListener("input", function () {
+            var count = this.value.length;
+            var max = this.getAttribute("maxlength");
+            var countId = this.id + "-count";
+            var countElement = document.getElementById(countId);
 
-              if (countElement) {
-                countElement.innerText = `${count}/${max}`;
-              } else {
-                console.error(
-                  `The element with ID "${countId}" does not exist.`
-                );
-              }
-            });
+            if (countElement) {
+              countElement.innerText = `${count}/${max}`;
+            } else {
+              console.error(`The element with ID "${countId}" does not exist.`);
+            }
           });
+        });
 
         const form = document.querySelector('form[action="/generation"]');
+        const submitButton = document.querySelector(".submit-ps");
+        const buttonText = submitButton.querySelector(".button-text");
+        const spinner = submitButton.querySelector(".spinner");
+
         form.addEventListener("submit", function (event) {
           event.preventDefault();
           synchronizeTextarea(tinymce.get("mce_full"));
           var editorContent = tinymce.get("mce_full").getContent();
           if (editorContent.length > 2000) {
-            alert(
-              "Text exceeds the maximum allowed length of 2000 characters."
-            );
+            alert("Text exceeds the maximum allowed length of 2000 characters.");
             return false;
           }
           var jobTitle = document.getElementById("job_title").value;
+
+          // Show loading animation
+          submitButton.classList.add("loading");
+          buttonText.style.display = "none";
+          spinner.style.display = "block";
+
           fetch("/generation", {
             method: "POST",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: `text=${encodeURIComponent(
-              editorContent
-            )}&job_title=${encodeURIComponent(jobTitle)}`,
+            body: `text=${encodeURIComponent(editorContent)}&job_title=${encodeURIComponent(jobTitle)}`,
           })
-            .then((response) => response.text())
-            .then((html) => {
-              document.getElementById("result").innerHTML = `Result: ${html}`;
+            .then((response) => response.json())
+            .then((data) => {
+              if (data && data.results) {
+                var resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = ""; // Clear previous results
+                data.results.forEach((result, index) => {
+                  var newResult = document.createElement("div");
+                  newResult.className = "result";
+                  newResult.innerHTML = `
+                    <span>${result}</span>
+                    <button class="select-result-button" data-index="${index}">Select</button>
+                  `;
+                  resultDiv.appendChild(newResult);
+                });
+                document.querySelectorAll(".select-result-button").forEach((button) => {
+                  button.addEventListener("click", function () {
+                    var index = this.getAttribute("data-index");
+                    alert(`You selected result ${parseInt(index) + 1}`);
+                  });
+                });
+              } else {
+                document.getElementById("result").innerHTML = "Error fetching results.";
+              }
             })
             .catch((error) => {
               console.error("Error:", error);
-              document.getElementById("result").innerHTML =
-                "Error fetching results.";
+              document.getElementById("result").innerHTML = "Error fetching results.";
+            })
+            .finally(() => {
+              // Hide loading animation
+              submitButton.classList.remove("loading");
+              buttonText.style.display = "block";
+              spinner.style.display = "none";
             });
         });
 
@@ -155,9 +176,7 @@
               console.log("bindTimer function called");
               var editor = tinymce.get("mce_full");
               if (!editor) {
-                console.error(
-                  "The TinyMCE editor instance #mce_full does not exist."
-                );
+                console.error("The TinyMCE editor instance #mce_full does not exist.");
                 return;
               }
 
@@ -194,8 +213,7 @@
                 date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
                 expires = "; expires=" + date.toUTCString();
               }
-              document.cookie =
-                name + "=" + (value || "") + expires + "; path=/";
+              document.cookie = name + "=" + (value || "") + expires + "; path=/";
             }
 
             function getCookie(name) {
@@ -204,8 +222,7 @@
               for (var i = 0; i < ca.length; i++) {
                 var c = ca[i];
                 while (c.charAt(0) == " ") c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) == 0)
-                  return c.substring(nameEQ.length, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
               }
               return null;
             }
@@ -257,12 +274,15 @@
             ></textarea>
             <div id="mce_full-count">0 자, 0 단어</div>
           </div>
-          <button type="submit" class="submit-ps">P</button>
+          <button type="submit" class="submit-ps">
+            <span class="button-text">P</span>
+            <span class="spinner" style="display: none;"></span>
+          </button>
         </form>
       </section>
       <section class="feedback">
         <h2 class="feedback-title">피드백</h2>
-        <div id="result">Result :</div>
+        <div id="result"></div>
       </section>
     </div>
     <div id="autoSaveNotification">Not saved yet</div>

@@ -150,9 +150,7 @@ async def login(
         return response
     else:
         logger.error("Login failed: Invalid username or password")
-        return HTMLResponse(
-            "Invalid username or password", status_code=401
-        )
+        return HTMLResponse("Invalid username or password", status_code=401)
 
 
 @app.post("/logout")
@@ -207,5 +205,4 @@ async def get_gpt_response(job_title: str, text: str) -> str:
 
 if __name__ == "__main__":
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8888,
-                log_level="debug", reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8888, log_level="debug", reload=True)
