@@ -28,10 +28,12 @@ SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, bind=engine, class_=AsyncSession
 )
 
+
 # OpenAI client setup
 def create_openai_client():
     api_key = ""
     return OpenAI(api_key=api_key)
+
 
 app.add_middleware(
     SessionMiddleware,
@@ -52,11 +54,13 @@ app.mount(
     name="static",
 )
 
+
 # User model
 class User(Base):
     __tablename__ = "users"
     username = Column(String, primary_key=True)
     password = Column(String)
+
 
 # Database initialization
 @app.on_event("startup")
@@ -64,10 +68,12 @@ async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+
 # Dependency to get database session
 async def get_session() -> AsyncSession:
     async with SessionLocal() as session:
         yield session
+
 
 # Utility functions for user handling
 async def get_user_by_username(username: str, session: AsyncSession) -> User:
@@ -75,8 +81,10 @@ async def get_user_by_username(username: str, session: AsyncSession) -> User:
     result = await session.execute(stmt)
     return result.scalars().first()
 
+
 async def user_exists(username: str, session: AsyncSession) -> bool:
     return await get_user_by_username(username, session) is not None
+
 
 async def add_user(username: str, password: str, session: AsyncSession):
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
@@ -84,14 +92,17 @@ async def add_user(username: str, password: str, session: AsyncSession):
     session.add(user_instance)
     await session.commit()
 
+
 # Route handlers
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_form(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
+
 
 @app.post("/signup")
 async def handle_signup(
@@ -115,9 +126,11 @@ async def handle_signup(
     await add_user(username, password, session)
     return RedirectResponse(url="/login", status_code=302)
 
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
 
 @app.post("/login")
 async def login(
@@ -143,12 +156,14 @@ async def login(
         logger.error("Login failed: Invalid username or password")
         return HTMLResponse("Invalid username or password", status_code=401)
 
+
 @app.post("/logout")
 async def logout(request: Request):
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("username")
     request.session.clear()  # Clear session data
     return response
+
 
 @app.get("/user_page", response_class=HTMLResponse)
 async def user_page(request: Request, session: AsyncSession = Depends(get_session)):
@@ -165,6 +180,7 @@ async def user_page(request: Request, session: AsyncSession = Depends(get_sessio
         logger.error("Unauthorized access attempt")
         raise HTTPException(status_code=404, detail="User not found")
 
+
 @app.post("/generation")
 async def chat_analysis(request: Request):
     data = await request.json()
@@ -178,7 +194,7 @@ async def chat_analysis(request: Request):
     analysis_results = [
         {"gpt_response": gpt_response},
         {"cohere_response": cohere_response},
-        {"model_response": model_response}
+        {"model_response": model_response},
     ]
 
     return JSONResponse(content=analysis_results)
@@ -207,7 +223,8 @@ async def get_gpt_responses(job_title: str, text: str) -> str:
         logger.error(f"Error processing GPT response: {str(e)}")
         return f"서버 오류 발생: {str(e)}"
 
-co = cohere.Client()
+
+# co = cohere.Client()
 def chat2(prompt1, text):
     response = co.chat(
         chat_history=[
@@ -217,6 +234,7 @@ def chat2(prompt1, text):
         connectors=[{"id": "web-search"}],
     )
     return response
+
 
 async def get_cohere_responses(job_title: str, text: str) -> str:
     prompt = (
@@ -235,9 +253,13 @@ async def get_cohere_responses(job_title: str, text: str) -> str:
         logger.error(f"Cohere 응답 처리 중 오류 발생: {str(e)}")
         return f"서버 오류 발생: {str(e)}"
 
+
 # Colab에서 실행된 서버의 ngrok 공개 URL
-public_url = "https://e668-34-66-84-102.ngrok-free.app"  # Colab에서 출력된 public_url로 대체
+public_url = (
+    "https://e668-34-66-84-102.ngrok-free.app"  # Colab에서 출력된 public_url로 대체
+)
 url = f"{public_url}/process"
+
 
 async def get_model_responses(job_title: str, text: str) -> str:
     prompt = "너는 자기소개서를 감별해주는 AI이고 성공 경험, 지원 동기 및 포부, 강점, 단점이 모두 포함되었는지 확인해서 누락된 부분이 있으면 말해주고 단점이 포함된 문장은 수정을 요청할게"
@@ -246,10 +268,7 @@ async def get_model_responses(job_title: str, text: str) -> str:
         responses = []
 
         # 서버에 보낼 데이터
-        data = {
-            "prompt": prompt,
-            "text": text
-        }
+        data = {"prompt": prompt, "text": text}
 
         # 서버에 POST 요청 보내기
         response = requests.post(url, json=data)
@@ -264,6 +283,7 @@ async def get_model_responses(job_title: str, text: str) -> str:
     except Exception as e:
         logger.error(f"GPT 응답 처리 중 오류 발생: {str(e)}")
         return f"서버 오류 발생: {str(e)}"
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8888, log_level="debug", reload=True)
