@@ -120,7 +120,7 @@ button.upper-login {
 
 .explanation {
   display: flex;
-  width: 100vw;
+  width: 99vw;
   height: auto;
   flex-direction: column;
   justify-content: center;
