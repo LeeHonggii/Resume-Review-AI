@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, HTTPException, Response, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import Column, String
@@ -13,6 +13,7 @@ import hashlib
 import uvicorn
 import logging
 from openai import OpenAI
+from typing import List
 
 app = FastAPI()
 
@@ -181,26 +182,35 @@ async def user_page(request: Request, session: AsyncSession = Depends(get_sessio
 async def chat_analysis(
     request: Request, job_title: str = Form(...), text: str = Form(...)
 ):
-    analysis_result = await get_gpt_response(job_title, text)
-    return Response(content=analysis_result, media_type="text/plain")
+    analysis_result = await get_gpt_responses(job_title, text)
+    return JSONResponse(content={"result": analysis_result})
 
 
-async def get_gpt_response(job_title: str, text: str) -> str:
+async def get_gpt_responses(job_title: str, text: str) -> List[str]:
     prompt = (
         f"자소서 내용 분석 (직무: {job_title}): {text}\n"
         "1. 해당 직무에 필요한 경험, 지원 동기 및 포부, 강점, 단점이 얼마나 잘 매치되는지 분석해줘.\n"
         "2. 누락된 요소나 추가할 내용이 있는지 제안해줘.\n"
         "3. 빈줄없이 출력해줘\n"
-        "4. 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘."
+        "4. 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘.\n"
+        "5. 상단의 모든 내용을 반복해서 출력하지마"
     )
+
     try:
+        responses = []
+
+        # Correctly formatted messages list
+        messages = [{"role": "user", "content": prompt}]
+
+        # Assuming you have set up the client for the OpenAI API
         chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}], model="gpt-4-turbo"
+            messages=messages, model="gpt-4"
         )
-        return chat_completion.choices[0].message.content
+        responses.append(chat_completion.choices[0].message.content)
+        return responses
     except Exception as e:
         logger.error(f"Error processing GPT response: {str(e)}")
-        return f"서버 오류 발생: {str(e)}"
+        return [f"서버 오류 발생: {str(e)}"]
 
 
 if __name__ == "__main__":
