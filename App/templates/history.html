@@ -12,9 +12,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <title>User History</title>
     <style>
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         table {
-            width: 100%;
+            width: 80%;
             border-collapse: collapse;
+            text-align: center;
+            margin: 20px auto;
         }
 
         th,
@@ -22,13 +30,11 @@
             padding: 8px 12px;
             border: 1px solid #ddd;
             vertical-align: middle;
-            /* Vertically align contents */
         }
 
         th {
             background-color: #f4f4f4;
             vertical-align: middle;
-            /* Vertically align contents */
         }
 
         a {
@@ -76,8 +82,8 @@
         <table>
             <tr>
                 <th>ID</th>
-                <th>Job Title</th>
-                <th>Timestamp</th>
+                <th>Title</th>
+                <th>Time</th>
             </tr>
             {% for page in saved_pages %}
             <tr>

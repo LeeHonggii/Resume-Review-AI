@@ -285,17 +285,3 @@ textarea#mce_full {
 .feedback {
   width: 43vw;
 }
-
-
-
-.select-result-button {
-  border-style: none;
-  max-height: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: max-height 0.5s ease;
-}
-
-.select-result-button:hover {
-  max-height: 100%;
-}
