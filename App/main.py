@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey, Integer
+from sqlalchemy import Column, String, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
 from fastapi import FastAPI, Request, Form, HTTPException, Response, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
@@ -13,6 +13,8 @@ from pathlib import Path
 import hashlib
 import uvicorn
 import logging
+import cohere
+import datetime
 from openai import OpenAI
 
 app = FastAPI()
@@ -53,22 +55,22 @@ app.mount(
 )
 
 # User model
-
-
 class User(Base):
     __tablename__ = "users"
     username = Column(String, primary_key=True)
     password = Column(String)
-    sessions = relationship("UserSession", back_populates="user")
+    saved_contents = relationship("SavedPageContent", back_populates="user")
 
 
-class UserSession(Base):
-    __tablename__ = "user_sessions"
+class SavedPageContent(Base):
+    __tablename__ = "saved_page_content"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, ForeignKey("users.username"))
-    session_data = Column(String)
+    job_title = Column(String)
+    text = Column(Text)
+    result = Column(Text)
     timestamp = Column(String)
-    user = relationship("User", back_populates="sessions")
+    user = relationship("User", back_populates="saved_contents")
 
 
 # Database initialization
@@ -79,15 +81,11 @@ async def startup():
 
 
 # Dependency to get database session
-
-
 async def get_session() -> AsyncSession:
     async with SessionLocal() as session:
         yield session
 
 # Utility functions for user handling
-
-
 async def get_user_by_username(username: str, session: AsyncSession) -> User:
     stmt = select(User).where(User.username == username)
     result = await session.execute(stmt)
@@ -116,8 +114,6 @@ async def add_user(username: str, password: str, session: AsyncSession):
         await session.rollback()
 
 # Route handlers
-
-
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -232,18 +228,61 @@ async def user_page(request: Request, session: AsyncSession = Depends(get_sessio
         raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.get("/session_history", response_class=HTMLResponse)
-async def session_history(request: Request, session: AsyncSession = Depends(get_session)):
+@app.get("/history", response_class=HTMLResponse)
+async def history(request: Request, session: AsyncSession = Depends(get_session)):
     username = request.session.get("username")
     if not username:
         return RedirectResponse(url="/login", status_code=303)
 
-    user_sessions = await session.execute(select(UserSession).where(UserSession.username == username))
-    sessions = user_sessions.scalars().all()
+    saved_contents = await session.execute(select(SavedPageContent).where(SavedPageContent.username == username))
+    saved_pages = saved_contents.scalars().all()
 
     return templates.TemplateResponse(
-        "session_history.html", {"request": request, "sessions": sessions}
+        "history.html", {"request": request, "saved_pages": saved_pages}
     )
+
+
+@app.get("/saved_page/{page_id}", response_class=HTMLResponse)
+async def saved_page_detail(request: Request, page_id: int, session: AsyncSession = Depends(get_session)):
+    page_data = await session.execute(select(SavedPageContent).where(SavedPageContent.id == page_id))
+    saved_page = page_data.scalars().first()
+    
+    if not saved_page:
+        raise HTTPException(status_code=404, detail="Saved page not found")
+
+    return templates.TemplateResponse(
+        "saved_page_detail.html", {"request": request, "saved_page": saved_page}
+    )
+
+
+@app.post("/save_page_content")
+async def save_page_content(request: Request, session: AsyncSession = Depends(get_session)):
+    data = await request.json()
+    username = request.session.get("username")
+
+    if not username:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    job_title = data.get("job_title")
+    text = data.get("text")
+    result = data.get("result")
+
+    saved_content = SavedPageContent(
+        username=username,
+        job_title=job_title,
+        text=text,
+        result=result,
+        timestamp=datetime.datetime.utcnow().isoformat()
+    )
+    session.add(saved_content)
+    try:
+        await session.commit()
+        logger.debug(f"Page content saved successfully for user {username}")
+        return JSONResponse(content={"message": "Page content saved successfully"}, status_code=200)
+    except Exception as e:
+        logger.error(f"Error saving page content for user {username}: {str(e)}")
+        await session.rollback()
+        raise HTTPException(status_code=500, detail="Error saving page content")
 
 
 @app.post("/generation")
@@ -289,7 +328,7 @@ async def get_gpt_responses(job_title: str, text: str) -> str:
         return f"서버 오류 발생: {str(e)}"
 
 
-# co = cohere.Client()
+# co = cohere.Client(api_key="")
 def chat2(prompt1, text):
     response = co.chat(
         chat_history=[

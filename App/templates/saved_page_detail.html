@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/user_page.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.3.0/uicons-bold-rounded/css/uicons-bold-rounded.css">
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <title>Saved Page Detail</title>
+    <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            tinymce.init({
+                selector: "#mce_full",
+                resize: false,
+                menubar: false,
+                toolbar: [
+                    { name: 'history', items: ['undo', 'redo'] },
+                    { name: 'styles', items: ['styles'] },
+                    { name: 'formatting', items: ['bold', 'italic'] },
+                    { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
+                    { name: 'indentation', items: ['outdent', 'indent'] }
+                ],
+                setup: function (editor) {
+                    editor.on("init", function () {
+                        updateCount(editor);
+                    });
+                    editor.on("input", function () {
+                        updateCount(editor);
+                    });
+                },
+            });
+
+            function updateCount(editor) {
+                var content = editor.getContent({ format: "text" });
+                var charCount = content.length;
+                var wordCount = content.split(/\s+/).filter((n) => n != "").length;
+                var countElement = document.getElementById("mce_full-count");
+                if (countElement) {
+                    countElement.innerText = `${charCount} characters, ${wordCount} words`;
+                }
+            }
+
+            document.querySelectorAll('input[type="text"], textarea:not(#mce_full)').forEach((input) => {
+                input.addEventListener("input", function () {
+                    var count = this.value.length;
+                    var max = this.getAttribute("maxlength");
+                    var countId = this.id + "-count";
+                    var countElement = document.getElementById(countId);
+
+                    if (countElement) {
+                        countElement.innerText = `${count}/${max}`;
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
+        <div class="dropdown">
+            <button class="dropbtn">...</button>
+            <div class="dropdown-content">
+                <form action="/" method="get">
+                    <button type="submit" class="Home">Home</button>
+                </form>
+                <form action="/logout" method="post">
+                    <button type="submit" class="logout">Logout</button>
+                </form>
+                <form action="/history" method="get">
+                    <button type="submit" class="history">History</button>
+                </form>
+            </div>
+        </div>
+    </header>
+    <div class="main-content">
+        <section class="your-work">
+            <h2 class="statement-title">Saved Self-Introduction</h2>
+            <div class="input-group">
+                <label for="job_title">지원직무</label>
+                <input type="text" name="job_title" id="job_title" value="{{ saved_page.job_title }}" readonly>
+            </div>
+            <div class="input-group">
+                <label for="text">자기소개서 본문</label>
+                <textarea name="text" id="mce_full" readonly>{{ saved_page.text }}</textarea>
+                <div id="mce_full-count">0 characters, 0 words</div>
+            </div>
+        </section>
+        <section class="feedback">
+            <h2 class="feedback-title">피드백</h2>
+            <div id="result">{{ saved_page.result }}</div>
+        </section>
+    </div>
+    <a href="/history" class="back-link">Back to History</a>
+</body>
+
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User History</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>User History</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Job Title</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for page in saved_pages %}
+        <tr>
+            <td><a href="/saved_page/{{ page.id }}">{{ page.id }}</a></td>
+            <td>{{ page.job_title }}</td>
+            <td>{{ page.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/user_page">Back to User Page</a>
+</body>
+
+</html>
