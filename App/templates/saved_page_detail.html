@@ -7,12 +7,10 @@
     <link rel="stylesheet" href="/static/user_page.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.3.0/uicons-bold-rounded/css/uicons-bold-rounded.css">
     <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
-    <title>Saved Page Detail</title>
-    <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js"
-        referrerpolicy="origin"></script>
+    <title>HistoryContent</title>
+    <script src="https://cdn.tiny.cloud/1/NO-API-KEY/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             tinymce.init({
@@ -71,11 +69,14 @@
                 <form action="/" method="get">
                     <button type="submit" class="Home">Home</button>
                 </form>
-                <form action="/logout" method="post">
-                    <button type="submit" class="logout">Logout</button>
+                <form action="/user_page" method="get">
+                    <button type="submit" class="user_page">Main</button>
                 </form>
                 <form action="/history" method="get">
                     <button type="submit" class="history">History</button>
+                </form>
+                <form action="/logout" method="post">
+                    <button type="submit" class="logout">Logout</button>
                 </form>
             </div>
         </div>
@@ -95,10 +96,11 @@
         </section>
         <section class="feedback">
             <h2 class="feedback-title">피드백</h2>
-            <div id="result">{{ saved_page.result | safe }}</div>
+            <div id="saved-page-result">
+                <button class="exbutton">{{ saved_page.result | safe }}</button>
+            </div>
         </section>
     </div>
-    <a href="/history" class="back-link">Back to History</a>
 </body>
 
 </html>

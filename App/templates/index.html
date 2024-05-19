@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Service Title</title>
+  <title>HomePage</title>
   <link rel="stylesheet" href="/static/index.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -64,15 +64,18 @@
     <img class="explanation" src="/static/home_1280.png" />
   </div>
   <script>
-    function toggleNavbarColor(add) {
+    document.addEventListener('DOMContentLoaded', function () {
+      const dropdownExists = document.querySelector(".dropdown") !== null;
       const navbar = document.querySelector(".header");
-      if (add) {
-        navbar.classList.add("navigation-blue");
-      } else {
-        navbar.classList.remove("navigation-blue");
-      }
-    }
+      const loginButton = document.querySelector(".upper-login");
 
+      if (dropdownExists) {
+        navbar.classList.add("navigation-blue");
+      } else if (loginButton) {
+        loginButton.addEventListener('mouseover', () => navbar.classList.add("navigation-blue"));
+        loginButton.addEventListener('mouseout', () => navbar.classList.remove("navigation-blue"));
+      }
+    });
     function fillcolor(add) {
       const button = document.querySelector(".start-button");
       if (add) {

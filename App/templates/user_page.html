@@ -11,8 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
   <title>Main Page</title>
-  <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js"
-    referrerpolicy="origin"></script>
+  <script src="https://cdn.tiny.cloud/1/NO-API-KEY/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       tinymce.init({
@@ -126,8 +125,8 @@
               var newResult = document.createElement("div");
               newResult.className = "result";
               newResult.innerHTML = `
-                <button class="select-result-button" title="${value}">
-                  ${key}: ${value.length > 200 ? value.substring(0, 200) + "..." : value}
+                <button class="select-result-button expandable-button" title="${value}">
+                  ${key}: ${value}
                 </button>
               `;
               resultDiv.appendChild(newResult);
@@ -190,7 +189,7 @@
         var autoSave = new Object();
         (function (obj) {
           obj.configuration = {
-            interval: 30, // Auto-save interval in seconds
+            interval: 300, // Auto-save interval in seconds
           };
 
           obj.bindTimer = function () {

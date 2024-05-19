@@ -1,7 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/history.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.3.0/uicons-bold-rounded/css/uicons-bold-rounded.css">
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <title>User History</title>
     <style>
         table {
@@ -13,10 +21,14 @@
         td {
             padding: 8px 12px;
             border: 1px solid #ddd;
+            vertical-align: middle;
+            /* Vertically align contents */
         }
 
         th {
             background-color: #f4f4f4;
+            vertical-align: middle;
+            /* Vertically align contents */
         }
 
         a {
@@ -31,22 +43,40 @@
 </head>
 
 <body>
-    <h1>User History</h1>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Job Title</th>
-            <th>Timestamp</th>
-        </tr>
-        {% for page in saved_pages %}
-        <tr>
-            <td><a href="/saved_page/{{ page.id }}">{{ page.id }}</a></td>
-            <td>{{ page.job_title }}</td>
-            <td>{{ page.timestamp }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <a href="/user_page">Back to User Page</a>
+    <header class="header">
+        <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
+        <div class="dropdown">
+            <button class="dropbtn">Menu</button>
+            <div class="dropdown-content">
+                <form action="/" method="get">
+                    <button type="submit" class="Home">Home</button>
+                </form>
+                <form action="/user_page" method="get">
+                    <button type="submit" class="user_page">Main</button>
+                </form>
+                <form action="/logout" method="post">
+                    <button type="submit" class="logout">Logout</button>
+                </form>
+            </div>
+        </div>
+    </header>
+    <div class="main-content">
+        <h1>{{ user.username }}'s History</h1>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Job Title</th>
+                <th>Timestamp</th>
+            </tr>
+            {% for page in saved_pages %}
+            <tr>
+                <td>{{ page.id }}</td>
+                <td><a href="/saved_page/{{ page.id }}">{{ page.job_title }}</a></td>
+                <td>{{ page.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </body>
 
 </html>

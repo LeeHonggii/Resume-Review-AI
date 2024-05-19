@@ -255,19 +255,22 @@ textarea#mce_full {
   white-space: nowrap;
 }
 
-.result button {
-  background: none;
-  border: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  outline: inherit;
+.expandable-button {
+  border-style: none;
+  max-height: 200px;
+  /* Initial max-height, adjust based on your design */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
-  text-align: left;
+  transition: max-height 0.5s ease;
 }
+
+.expandable-button:hover {
+  max-height: 100%;
+  /* Maximum height when expanded */
+  white-space: normal;
+}
+
 
 .your-work {
   width: 48vw;
@@ -275,4 +278,18 @@ textarea#mce_full {
 
 .feedback {
   width: 43vw;
+}
+
+
+
+.select-result-button {
+  border-style: none;
+  max-height: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: max-height 0.5s ease;
+}
+
+.select-result-button:hover {
+  max-height: 100%;
 }

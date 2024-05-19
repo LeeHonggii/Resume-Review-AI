@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
-from fastapi import FastAPI, Request, Form, HTTPException, Response, Depends
+from fastapi import FastAPI, Request, Form, HTTPException, Response, Depends, requests
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -10,11 +10,12 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
+from datetime import datetime
 import hashlib
 import uvicorn
 import logging
 import cohere
-import datetime
+import pytz
 from openai import OpenAI
 
 app = FastAPI()
@@ -234,19 +235,34 @@ async def history(request: Request, session: AsyncSession = Depends(get_session)
     if not username:
         return RedirectResponse(url="/login", status_code=303)
 
+    user = await get_user_by_username(username, session)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+
     saved_contents = await session.execute(select(SavedPageContent).where(SavedPageContent.username == username))
     saved_pages = saved_contents.scalars().all()
 
+    kst = pytz.timezone('Asia/Seoul')
+    # Convert timestamps to KST and format to a human-readable format
+    for page in saved_pages:
+        utc_time = datetime.fromisoformat(page.timestamp)
+        kst_time = utc_time.astimezone(kst)
+        page.timestamp = kst_time.strftime('%Y-%m-%d %H:%M:%S')
+
     return templates.TemplateResponse(
-        "history.html", {"request": request, "saved_pages": saved_pages}
+        "history.html", {"request": request, "saved_pages": saved_pages, "user": user}
     )
 
 
 @app.get("/saved_page/{page_id}", response_class=HTMLResponse)
 async def saved_page_detail(request: Request, page_id: int, session: AsyncSession = Depends(get_session)):
+    username = request.session.get("username")
+    if not username:
+        return RedirectResponse(url="/login", status_code=303)
+
     page_data = await session.execute(select(SavedPageContent).where(SavedPageContent.id == page_id))
     saved_page = page_data.scalars().first()
-    
+
     if not saved_page:
         raise HTTPException(status_code=404, detail="Saved page not found")
 
@@ -256,26 +272,38 @@ async def saved_page_detail(request: Request, page_id: int, session: AsyncSessio
 
 
 @app.post("/save_page_content")
-async def save_page_content(
-    request: Request,
-    page_content: dict,
-    session: AsyncSession = Depends(get_session)
-):
-    try:
-        new_page = SavedPage(
-            username=request.session.get("username"),
-            job_title=page_content.get("job_title"),
-            text=page_content.get("text"),
-            result=page_content.get("result"),
-            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        )
-        session.add(new_page)
-        await session.commit()
-        return {"message": "Page content saved successfully."}
-    except Exception as e:
-        logger.error(f"Error saving page content: {str(e)}")
-        return JSONResponse(status_code=500, content={"message": "Failed to save page content."})
+async def save_page_content(request: Request, session: AsyncSession = Depends(get_session)):
+    data = await request.json()
+    username = request.session.get("username")
 
+    if not username:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    job_title = data.get("job_title")
+    text = data.get("text")
+    result = data.get("result")
+
+    # Convert current time to KST
+    kst = pytz.timezone('Asia/Seoul')
+    current_time_utc = datetime.utcnow().replace(tzinfo=pytz.utc)
+    current_time_kst = current_time_utc.astimezone(kst).isoformat()
+
+    saved_content = SavedPageContent(
+        username=username,
+        job_title=job_title,
+        text=text,
+        result=result,
+        timestamp=current_time_kst
+    )
+    session.add(saved_content)
+    try:
+        await session.commit()
+        logger.debug(f"Page content saved successfully for user {username}")
+        return JSONResponse(content={"message": "Page content saved successfully"}, status_code=200)
+    except Exception as e:
+        logger.error(f"Error saving page content for user {username}: {str(e)}")
+        await session.rollback()
+        raise HTTPException(status_code=500, detail="Error saving page content")
 
 
 @app.post("/generation")
@@ -321,7 +349,7 @@ async def get_gpt_responses(job_title: str, text: str) -> str:
         return f"서버 오류 발생: {str(e)}"
 
 
-# co = cohere.Client(api_key="")
+co = cohere.Client(api_key="")
 def chat2(prompt1, text):
     response = co.chat(
         chat_history=[
