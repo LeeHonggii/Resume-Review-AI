@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Session History</title>
+  </head>
+  <body>
+    <h1>Session History</h1>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Session Data</th>
+        <th>Timestamp</th>
+      </tr>
+      {% for session in sessions %}
+      <tr>
+        <td>{{ session.id }}</td>
+        <td>{{ session.session_data }}</td>
+        <td>{{ session.timestamp }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <a href="/user_page">Back to User Page</a>
+  </body>
+</html>

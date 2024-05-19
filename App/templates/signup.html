@@ -62,13 +62,11 @@
       var signupForm = document.querySelector(".signupForm");
       if (signupForm) {
         signupForm.addEventListener("submit", function (event) {
-          event.preventDefault();
-
-          var username = document.getElementById("username").value;
           var password = document.getElementById("password").value;
           var confirmPassword = document.getElementById("confirm-password").value;
 
           if (password !== confirmPassword) {
+            event.preventDefault(); // Prevent form submission if passwords do not match
             const mainContent = document.querySelector(".main-content");
             mainContent.classList.add("shake-animation");
             mainContent.addEventListener(
@@ -79,10 +77,6 @@
               { once: true }
             );
             console.error("Passwords do not match.");
-          } else {
-            // Simulate successful signup and redirect to login page
-            console.log("Signup successful");
-            window.location.href = "/login";
           }
         });
       } else {

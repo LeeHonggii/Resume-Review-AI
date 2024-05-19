@@ -1,22 +1,19 @@
+from sqlalchemy import Column, String, ForeignKey, Integer
+from sqlalchemy.orm import relationship
 from fastapi import FastAPI, Request, Form, HTTPException, Response, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import Column, String
-from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
+from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
 import hashlib
 import uvicorn
 import logging
 from openai import OpenAI
-from typing import List
-import asyncio
-import cohere
-import requests
 
 app = FastAPI()
 
@@ -28,8 +25,9 @@ SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, bind=engine, class_=AsyncSession
 )
 
-
 # OpenAI client setup
+
+
 def create_openai_client():
     api_key = ""
     return OpenAI(api_key=api_key)
@@ -54,12 +52,23 @@ app.mount(
     name="static",
 )
 
-
 # User model
+
+
 class User(Base):
     __tablename__ = "users"
     username = Column(String, primary_key=True)
     password = Column(String)
+    sessions = relationship("UserSession", back_populates="user")
+
+
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, ForeignKey("users.username"))
+    session_data = Column(String)
+    timestamp = Column(String)
+    user = relationship("User", back_populates="sessions")
 
 
 # Database initialization
@@ -70,16 +79,24 @@ async def startup():
 
 
 # Dependency to get database session
+
+
 async def get_session() -> AsyncSession:
     async with SessionLocal() as session:
         yield session
 
-
 # Utility functions for user handling
+
+
 async def get_user_by_username(username: str, session: AsyncSession) -> User:
     stmt = select(User).where(User.username == username)
     result = await session.execute(stmt)
-    return result.scalars().first()
+    user = result.scalars().first()
+    if user:
+        logger.debug(f"User found: {user.username}")
+    else:
+        logger.debug(f"User not found: {username}")
+    return user
 
 
 async def user_exists(username: str, session: AsyncSession) -> bool:
@@ -90,10 +107,17 @@ async def add_user(username: str, password: str, session: AsyncSession):
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     user_instance = User(username=username, password=hashed_password)
     session.add(user_instance)
-    await session.commit()
-
+    try:
+        await session.commit()
+        logger.debug(
+            f"User {username} added successfully with password hash {hashed_password}")
+    except Exception as e:
+        logger.error(f"Error adding user: {str(e)}")
+        await session.rollback()
 
 # Route handlers
+
+
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -113,18 +137,35 @@ async def handle_signup(
     confirm_password: str = Form(...),
     session: AsyncSession = Depends(get_session),
 ):
-    if password != confirm_password:
+    try:
+        # Check if passwords match
+        if password != confirm_password:
+            logger.debug("Passwords do not match")
+            return templates.TemplateResponse(
+                "signup.html",
+                {"request": request, "error_message": "Passwords do not match"},
+            )
+
+        # Check if the username already exists
+        if await user_exists(username, session):
+            logger.debug(f"Username {username} already exists")
+            return templates.TemplateResponse(
+                "signup.html",
+                {"request": request, "error_message": "Username already exists"},
+            )
+
+        # Add the user to the database
+        await add_user(username, password, session)
+        logger.debug(f"User {username} added successfully")
+        return RedirectResponse(url="/login", status_code=302)
+
+    except Exception as e:
+        logger.error(f"Error during signup: {str(e)}")
         return templates.TemplateResponse(
             "signup.html",
-            {"request": request, "error_message": "Passwords do not match"},
+            {"request": request,
+                "error_message": f"An error occurred: {str(e)}"},
         )
-    if await user_exists(username, session):
-        return templates.TemplateResponse(
-            "signup.html",
-            {"request": request, "error_message": "Username already exists"},
-        )
-    await add_user(username, password, session)
-    return RedirectResponse(url="/login", status_code=302)
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -140,7 +181,16 @@ async def login(
     session: AsyncSession = Depends(get_session),
 ):
     user = await get_user_by_username(username, session)
-    if user and user.password == hashlib.sha256(password.encode()).hexdigest():
+    hashed_password = hashlib.sha256(
+        password.encode()).hexdigest()  # Hash the input password
+
+    if user:
+        logger.debug(
+            f"User found: {user.username}, Stored hash: {user.password}, Provided hash: {hashed_password}")
+    else:
+        logger.debug(f"User not found: {username}")
+
+    if user and user.password == hashed_password:
         request.session["username"] = username  # Store user name in session
         logger.debug("Login successful")
         response = RedirectResponse(url="/user_page", status_code=302)
@@ -153,7 +203,8 @@ async def login(
         )
         return response
     else:
-        logger.error("Login failed: Invalid username or password")
+        logger.error(
+            f"Login failed: Invalid username or password for user {username}")
         return HTMLResponse("Invalid username or password", status_code=401)
 
 
@@ -179,6 +230,20 @@ async def user_page(request: Request, session: AsyncSession = Depends(get_sessio
     else:
         logger.error("Unauthorized access attempt")
         raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.get("/session_history", response_class=HTMLResponse)
+async def session_history(request: Request, session: AsyncSession = Depends(get_session)):
+    username = request.session.get("username")
+    if not username:
+        return RedirectResponse(url="/login", status_code=303)
+
+    user_sessions = await session.execute(select(UserSession).where(UserSession.username == username))
+    sessions = user_sessions.scalars().all()
+
+    return templates.TemplateResponse(
+        "session_history.html", {"request": request, "sessions": sessions}
+    )
 
 
 @app.post("/generation")
@@ -286,4 +351,5 @@ async def get_model_responses(job_title: str, text: str) -> str:
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8888, log_level="debug", reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8888,
+                log_level="debug", reload=True)
