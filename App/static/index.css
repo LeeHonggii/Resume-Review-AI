@@ -144,10 +144,65 @@ button.upper-login {
   transition: background-color 0.3s ease-in-out;
 }
 
-
 .button-blue {
   background-color: #4C7DFF;
   color: antiquewhite;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  border: 1px solid rgb(37, 37, 37);
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  font-weight: 400;
+  color: rgb(37, 37, 37);
+  padding: 12px;
+  width: 100px;
+  /* Adjust width to fit within the header */
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  /* Adjust min-width to fit content */
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  right: 1%;
+}
+
+.dropdown-content form {
+  margin: 0;
+}
+
+.dropdown-content button {
+  color: black;
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  border: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  /* Adjust font size for better readability */
+  cursor: pointer;
+}
+
+.dropdown-content button:hover {
+  background-color: #ececec;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
 }
 
 @media (max-width: 750px) {
