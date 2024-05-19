@@ -244,6 +244,15 @@
         })(autoSave);
       })();
     });
+    function headerColor() {
+      const navbar = document.querySelector('.header');
+      const loginButton = document.querySelector('.dropbtn');
+
+      loginButton.addEventListener('mouseover', () => navbar.classList.add("navigation-blue"));
+      loginButton.addEventListener('mouseout', () => navbar.classList.remove("navigation-blue"));
+    }
+
+    document.addEventListener("DOMContentLoaded", headerColor);
   </script>
 </head>
 

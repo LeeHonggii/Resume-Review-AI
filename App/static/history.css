@@ -30,8 +30,12 @@ html {
     padding-top: 8px;
     margin-bottom: 20px;
     border-bottom: 4px solid #a3a3a3;
-    transition: border-bottom 0.5s ease-in-out;
+    transition: border-bottom 1s ease-in-out;
     z-index: 1;
+}
+
+.navigation-blue {
+    border-bottom: 4px solid #4C7DFF;
 }
 
 .logo,
@@ -78,7 +82,9 @@ html {
     width: 100px;
     text-align: center;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 900;
+    font-family: "Noto Sans KR", sans-serif;
 }
 
 .dropdown-content {

@@ -1,10 +1,11 @@
 * {
   font-family: "Noto Sans KR", sans-serif;
-  font-size: 20px; 
+  font-size: 20px;
   font-weight: 800;
 }
 
-body, html {
+body,
+html {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -33,7 +34,7 @@ body, html {
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(to right, #487AFF, #FFC0CB);
+  background: #487AFF;
 }
 
 .logo,
@@ -70,12 +71,14 @@ form {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 300px; 
+  max-width: 300px;
 }
+
 #label-username,
 #label-password {
   align-self: flex-start;
 }
+
 #label-password {
   margin-top: 20px;
 }
@@ -83,7 +86,7 @@ form {
 input[type="text"],
 input[type="password"],
 .lower-login {
-  width: 100%; 
+  width: 100%;
   padding: 10px;
   margin: 5px 0;
   box-shadow: none;
@@ -93,33 +96,37 @@ input[type="password"],
 }
 
 .line {
-    width: 50vh;
-    display: flex;
-    align-items: center;
-    color: #888; /* Updated for better visibility */
-    font-size: 14px;
-    margin: 8px 0;
-    margin-top: 20px;
-    margin-bottom: 20px;
+  width: 50vh;
+  display: flex;
+  align-items: center;
+  color: #888;
+  /* Updated for better visibility */
+  font-size: 14px;
+  margin: 8px 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .line::before,
 .line::after {
-    content: "";
-    flex-grow: 1;
-    margin: 0 16px;
-    background-color: #ccc; /* Updated for better visibility */
-    height: 1px; /* Ensure height is sufficient to be visible */
+  content: "";
+  flex-grow: 1;
+  margin: 0 16px;
+  background-color: #ccc;
+  /* Updated for better visibility */
+  height: 1px;
+  /* Ensure height is sufficient to be visible */
 }
 
-button.lower-login, button.signup{
+button.lower-login,
+button.signup {
   padding: 10px;
   margin: 5px 0;
-  background-color: #487AFF; 
+  background-color: #487AFF;
   color: black;
   border: none;
   border-radius: 5px;
-  cursor: pointer;  
+  cursor: pointer;
 }
 
 button.lower-login {
@@ -142,7 +149,7 @@ button {
 }
 
 button:hover {
-    background-color: #a3a3a3;
+  background-color: #a3a3a3;
 }
 
 .info {
@@ -150,15 +157,15 @@ button:hover {
 }
 
 .error {
-    color: red;
-    font-size: 0.9em;
-    margin: 5px 0;
+  color: red;
+  font-size: 0.9em;
+  margin: 5px 0;
 }
 
 button,
 button.lower-login {
   width: 108%;
-} 
+}
 
 @keyframes shake {
 

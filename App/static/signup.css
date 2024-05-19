@@ -29,7 +29,7 @@ html {
   padding-top: 10px;
   margin-bottom: auto;
   border-bottom: 4px solid #a3a3a3;
-  transition: border-bottom 0.5s ease-in-out;
+  transition: border-bottom 1s ease-in-out;
   z-index: 1;
 }
 
@@ -49,9 +49,11 @@ html {
   font-style: normal;
   font-size: 30px;
 }
+
 .navigation-blue {
   border-bottom: 4px solid #4C7DFF;
 }
+
 .main-content {
   display: flex;
   flex-direction: column;
@@ -79,6 +81,7 @@ button.upper-login {
   margin-left: auto;
   /* Auto margin for alignment to the right */
 }
+
 .line {
   width: 50vh;
   display: flex;
