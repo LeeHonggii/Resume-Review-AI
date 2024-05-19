@@ -66,7 +66,7 @@
     <header class="header">
         <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
         <div class="dropdown">
-            <button class="dropbtn">...</button>
+            <button class="dropbtn">Menu</button>
             <div class="dropdown-content">
                 <form action="/" method="get">
                     <button type="submit" class="Home">Home</button>
@@ -95,7 +95,7 @@
         </section>
         <section class="feedback">
             <h2 class="feedback-title">피드백</h2>
-            <div id="result">{{ saved_page.result }}</div>
+            <div id="result">{{ saved_page.result | safe }}</div>
         </section>
     </div>
     <a href="/history" class="back-link">Back to History</a>

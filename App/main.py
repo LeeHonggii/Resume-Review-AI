@@ -256,33 +256,26 @@ async def saved_page_detail(request: Request, page_id: int, session: AsyncSessio
 
 
 @app.post("/save_page_content")
-async def save_page_content(request: Request, session: AsyncSession = Depends(get_session)):
-    data = await request.json()
-    username = request.session.get("username")
-
-    if not username:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    job_title = data.get("job_title")
-    text = data.get("text")
-    result = data.get("result")
-
-    saved_content = SavedPageContent(
-        username=username,
-        job_title=job_title,
-        text=text,
-        result=result,
-        timestamp=datetime.datetime.utcnow().isoformat()
-    )
-    session.add(saved_content)
+async def save_page_content(
+    request: Request,
+    page_content: dict,
+    session: AsyncSession = Depends(get_session)
+):
     try:
+        new_page = SavedPage(
+            username=request.session.get("username"),
+            job_title=page_content.get("job_title"),
+            text=page_content.get("text"),
+            result=page_content.get("result"),
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
+        session.add(new_page)
         await session.commit()
-        logger.debug(f"Page content saved successfully for user {username}")
-        return JSONResponse(content={"message": "Page content saved successfully"}, status_code=200)
+        return {"message": "Page content saved successfully."}
     except Exception as e:
-        logger.error(f"Error saving page content for user {username}: {str(e)}")
-        await session.rollback()
-        raise HTTPException(status_code=500, detail="Error saving page content")
+        logger.error(f"Error saving page content: {str(e)}")
+        return JSONResponse(status_code=500, content={"message": "Failed to save page content."})
+
 
 
 @app.post("/generation")
