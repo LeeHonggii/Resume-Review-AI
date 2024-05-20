@@ -23,7 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
       { name: 'styles', items: ['styles'] },
       { name: 'formatting', items: ['bold', 'italic'] },
       { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
-      { name: 'indentation', items: ['outdent', 'indent'] }
+      { name: 'backcolor', items: ['backcolor']},
+      { name: 'file', items: ['print']}
     ],
     setup: function (editor) {
       editor.on("init", function () {
@@ -94,38 +95,62 @@ document.addEventListener("DOMContentLoaded", function () {
   const spinner = submitButton.querySelector(".spinner");
 
   form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    synchronizeTextarea(tinymce.get("mce_full"));
-    var editorContent = tinymce.get("mce_full").getContent();
-    if (editorContent.length > 2000) {
-      alert("Text exceeds the maximum allowed length of 2000 characters.");
-      return false;
-    }
-    var jobTitle = document.getElementById("job_title").value;
+      event.preventDefault();
+      synchronizeTextarea(tinymce.get("mce_full"));
+      var editorContent = tinymce.get("mce_full").getContent();
+      if (editorContent.length > 2000) {
+          alert("Text exceeds the maximum allowed length of 2000 characters.");
+          return false;
+      }
+      var jobTitle = document.getElementById("job_title").value;
 
-    // Show loading animation
-    submitButton.classList.add("loading");
-    buttonText.style.display = "none";
-    spinner.style.display = "block";
+      submitButton.classList.add("loading");
+      buttonText.style.display = "none";
+      spinner.style.display = "block";
 
-    fetch("/generation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: editorContent, job_title: jobTitle }),
-    })
-      .then(response => response.json())
-      .then(handleData)
-      .catch(handleError)
+      // First, make the call to the generation endpoint
+      fetch("/generation", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ text: editorContent, job_title: jobTitle })
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok from generation endpoint');
+          }
+          return response.json();
+      })
+      .then(data => {
+          handleData(data);
+          // If generation is successful, save the data
+          return fetch("/save_page_content", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({
+                  job_title: jobTitle,
+                  text: editorContent,
+                  result: JSON.stringify(data) // Assuming you want to store the response as 'result'
+              })
+          });
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok from save content endpoint');
+          }
+          return response.json();
+      })
+      .then(saveResponse => {
+          console.log('Content saved successfully');
+      })
+      .catch(error => {
+          handleError(error);
+      })
       .finally(() => {
-        // Hide loading animation
-        submitButton.classList.remove("loading");
-        buttonText.style.display = "block";
-        spinner.style.display = "none";
+          submitButton.classList.remove("loading");
+          buttonText.style.display = "block";
+          spinner.style.display = "none";
       });
   });
-
   function handleData(data) {
       var resultDiv = document.getElementById("result");
       resultDiv.innerHTML = ""; // Clear previous results

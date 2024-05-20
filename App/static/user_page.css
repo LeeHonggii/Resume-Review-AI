@@ -262,21 +262,29 @@ textarea#mce_full {
 }
 
 .expandable-button {
+  display: block;
   border-style: none;
-  max-height: 200px;
-  /* Initial max-height, adjust based on your design */
+  margin: 5px 0;
+  padding: 10px;
+  text-align: left;
+  background-color: #f0f0f0; /* Light grey background */
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  height: 22vh; /* Adjust height automatically based on content */
+  line-height: auto; /* Adjust line-height for better readability */
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Show up to 3 lines */
+  -webkit-box-orient: vertical;
   transition: max-height 0.5s ease;
 }
-
 .expandable-button:hover {
-  max-height: 100%;
-  /* Maximum height when expanded */
-  white-space: normal;
+  max-height: none; /* Remove max-height on hover to show full content */
+  background-color: #80a1fa; /* Change background on hover */
+  white-space: normal; /* Allow text to wrap */
 }
-
+.result:hover {
+  background-color: #80a1fa;
+}
 
 .your-work {
   width: 48vw;
