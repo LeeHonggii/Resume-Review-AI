@@ -1,134 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/static/user_page.css" />
-    <title>User Profile</title>
-    <script>
-      // Clear analysis_result cookie on page load
-      document.addEventListener("DOMContentLoaded", function () {
-        document.cookie =
-          "analysis_result=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // Clears the specific cookie
 
-        const inputs = document.querySelectorAll(
-          'input[type="text"], textarea'
-        );
-        inputs.forEach((input) => {
-          input.addEventListener("input", function () {
-            updateCount(this);
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/user_page.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.3.0/uicons-bold-rounded/css/uicons-bold-rounded.css">
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+  <title>Main Page</title>
+  <script src="https://cdn.tiny.cloud/1/NO-API-KEY/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      tinymce.init({
+        selector: "#mce_full",
+        resize: false,
+        menubar: false,
+        toolbar: [
+          { name: 'history', items: ['undo', 'redo'] },
+          { name: 'styles', items: ['styles'] },
+          { name: 'formatting', items: ['bold', 'italic'] },
+          { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
+          { name: 'indentation', items: ['outdent', 'indent'] }
+        ],
+        setup: function (editor) {
+          editor.on("init", function () {
+            enforceMaxLength(editor);
+            updateCount(editor);
           });
-          updateCount(input);
-        });
+          editor.on("input", function () {
+            updateCount(editor);
+            enforceMaxLength(editor);
+          });
+          editor.on("change", function () {
+            updateCount(editor);
+            enforceMaxLength(editor);
+            synchronizeTextarea(editor);
+          });
+        },
       });
 
-      function updateCount(input) {
-        var count = input.value.length;
-        var max = input.getAttribute("maxlength");
-        var countId = input.id + "-count";
-        document.getElementById(countId).innerText = `${count}/${max}`;
-      }
-    </script>
-  </head>
-  <body>
-    <header class="header">
-      <div class="logo">Service Title</div>
-      <form action="/login" method="get" class="login-form">
-        <button type="submit" class="upper-login">로그인</button>
-      </form>
-    </header>
-
-    <nav class="navigation-bar"></nav>
-
-    <div class="main-content">
-      <section class="your-work">
-        <h2>자소서</h2>
-        <form action="/generation" method="post">
-          <div class="input-group">
-            <label for="job_title">지원직무</label>
-            <input
-              type="text"
-              name="job_title"
-              id="job_title"
-              placeholder="지원 직무에 대해 입력해주세요."
-              maxlength="1000"
-              required
-            />
-            <span id="position-count">0/1000</span>
-          </div>
-
-          <div class="input-group">
-            <label for="text">자기소개서 본문</label>
-            <textarea
-              name="text"
-              id="text"
-              placeholder="자기소개서 본문을 입력해주세요."
-              maxlength="5000"
-              required
-            ></textarea>
-            <span id="personal-statement-count">0/5000</span>
-          </div>
-
-          <button type="submit">피드백 받기</button>
-        </form>
-      </section>
-
-      <section class="feedback">
-        <h2 class="feedback-title">피드백</h2>
-        <div class="first-feedback">
-          {{ analysis_result | default('No analysis results available.') }}
-        </div>
-        <div class="second-feedback"></div>
-      </section>
-    </div>
-
-    <footer class="footer">
-      <p><a href="/">Go back to home</a></p>
-      <form action="/logout" method="post">
-        <button type="submit">Logout</button>
-      </form>
-    </footer>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        document.cookie =
-          "analysis_result=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        const form = document.querySelector('form[action="/generation"]');
-        const feedbackDiv = document.querySelector(".first-feedback");
-
-        form.addEventListener("submit", function (event) {
-          event.preventDefault();
-          const formData = new FormData(form);
-          fetch("/generation", {
-            method: "POST",
-            body: formData,
-          })
-            .then((response) => response.text())
-            .then((result) => {
-              feedbackDiv.textContent = result;
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              feedbackDiv.textContent = "Error loading analysis results.";
-            });
-
-          const inputs = document.querySelectorAll(
-            'input[type="text"], textarea'
-          );
-          inputs.forEach((input) => {
-            input.addEventListener("input", function () {
-              updateCount(this);
-            });
-            updateCount(input);
-          });
-        });
-
-        function updateCount(input) {
-          var count = input.value.length;
-          var max = input.getAttribute("maxlength");
-          var countId = input.id + "-count";
-          document.getElementById(countId).innerText = `${count}/${max}`;
+      function updateCount(editor) {
+        var content = editor.getContent({ format: "text" });
+        var charCount = content.length;
+        var wordCount = content.split(/\s+/).filter((n) => n != "").length;
+        var countElement = document.getElementById("mce_full-count");
+        if (countElement) {
+          countElement.innerText = `${charCount} characters, ${wordCount} words`;
         }
+      }
+
+      function enforceMaxLength(editor) {
+        var content = editor.getContent({ format: "text" });
+        if (content.length > 2000) {
+          editor.setContent(content.substr(0, 2000));
+          showNotification("Word count exceeds 2000 characters!", 5000);
+        }
+      }
+
+      function showNotification(message, duration) {
+        var notificationElement = document.getElementById("autoSaveNotification");
+        if (notificationElement) {
+          notificationElement.innerText = message;
+          notificationElement.style.display = "block";
+          setTimeout(() => {
+            notificationElement.style.display = "none";
+          }, duration);
+        }
+      }
+
+      function synchronizeTextarea(editor) {
+        document.getElementById("mce_full").value = editor.getContent({ format: "text" });
+      }
+
+      document.querySelectorAll('input[type="text"], textarea:not(#mce_full)').forEach((input) => {
+        input.addEventListener("input", function () {
+          var count = this.value.length;
+          var max = this.getAttribute("maxlength");
+          var countId = this.id + "-count";
+          var countElement = document.getElementById(countId);
+
+          if (countElement) {
+            countElement.innerText = `${count}/${max}`;
+          }
+        });
       });
-    </script>
-  </body>
+
+      const form = document.querySelector('form[action="/generation"]');
+      const submitButton = document.querySelector(".submit-ps");
+      const buttonText = submitButton.querySelector(".button-text");
+      const spinner = submitButton.querySelector(".spinner");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        synchronizeTextarea(tinymce.get("mce_full"));
+        var editorContent = tinymce.get("mce_full").getContent();
+        if (editorContent.length > 2000) {
+          alert("Text exceeds the maximum allowed length of 2000 characters.");
+          return false;
+        }
+        var jobTitle = document.getElementById("job_title").value;
+
+        // Show loading animation
+        submitButton.classList.add("loading");
+        buttonText.style.display = "none";
+        spinner.style.display = "block";
+
+        fetch("/generation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: editorContent, job_title: jobTitle }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            var resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = ""; // Clear previous results
+            data.forEach((result) => {
+              var key = Object.keys(result)[0];
+              var value = result[key];
+              var newResult = document.createElement("div");
+              newResult.className = "result";
+              newResult.innerHTML = `
+                <button class="select-result-button expandable-button" title="${value}">
+                  ${key}: ${value}
+                </button>
+              `;
+              resultDiv.appendChild(newResult);
+            });
+            document.querySelectorAll(".select-result-button").forEach((button) => {
+              button.addEventListener("click", function () {
+                var title = this.getAttribute("title");
+                alert(`Selected result: ${title}`);
+              });
+            });
+
+            // Save the result with page content
+            savePageContent(resultDiv.innerHTML);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            document.getElementById("result").innerHTML = "Error fetching results.";
+          })
+          .finally(() => {
+            // Hide loading animation
+            submitButton.classList.remove("loading");
+            buttonText.style.display = "block";
+            spinner.style.display = "none";
+          });
+      });
+
+      function savePageContent(resultHTML) {
+        const jobTitle = document.getElementById("job_title").value;
+        const textContent = tinymce.get("mce_full").getContent();
+        const pageContent = {
+          job_title: jobTitle,
+          text: textContent,
+          result: resultHTML
+        };
+
+        fetch("/save_page_content", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(pageContent),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Failed to save the page content.');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log('Page content saved successfully:', data);
+            showNotification("Page content saved successfully!", 5000);
+          })
+          .catch((error) => {
+            console.error('Error saving page content:', error);
+            showNotification("Error saving page content!", 5000);
+          });
+      }
+
+      (function () {
+        var autoSave = new Object();
+        (function (obj) {
+          obj.configuration = {
+            interval: 300, // Auto-save interval in seconds
+          };
+
+          obj.bindTimer = function () {
+            var editor = tinymce.get("mce_full");
+            if (!editor) {
+              return;
+            }
+
+            var textVal = editor.getContent();
+            var encodedTextVal = btoa(textVal);
+            var ref1 = getCookie("textval-01");
+            var ref2 = getCookie("textval-02");
+
+            if (encodedTextVal != ref1) {
+              setCookie("textval-01", encodedTextVal, 7);
+              setCookie("textval-02", ref1, 7);
+              setCookie("textval-03", ref2, 7);
+              showNotification("AUTO SAVED!", 5000);
+            } else {
+              showNotification("No change detected!", 5000);
+            }
+          };
+
+          obj.start = function () {
+            obj.bindTimer();
+            setTimeout(function () {
+              obj.start();
+            }, obj.configuration.interval * 1000);
+          };
+
+          function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+              var date = new Date();
+              date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+              expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+          }
+
+          function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(";");
+            for (var i = 0; i < ca.length; i++) {
+              var c = ca[i];
+              while (c.charAt(0) == " ") c = c.substring(1, c.length);
+              if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+          }
+          obj.start();
+        })(autoSave);
+      })();
+    });
+    function headerColor() {
+      const navbar = document.querySelector('.header');
+      const loginButton = document.querySelector('.dropbtn');
+
+      loginButton.addEventListener('mouseover', () => navbar.classList.add("navigation-blue"));
+      loginButton.addEventListener('mouseout', () => navbar.classList.remove("navigation-blue"));
+    }
+
+    document.addEventListener("DOMContentLoaded", headerColor);
+  </script>
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
+    <div class="dropdown">
+      <button class="dropbtn">MENU</button>
+      <div class="dropdown-content">
+        <form action="/" method="get">
+          <button type="submit" class="Home">Home</button>
+        </form>
+        <form action="/history" method="get">
+          <button type="submit" class="history">History</button>
+        </form>
+        <form action="/logout" method="post">
+          <button type="submit" class="logout">Logout</button>
+        </form>
+
+      </div>
+    </div>
+  </header>
+  <div class="main-content">
+    <section class="your-work">
+      <h2 class="statement-title">자소서</h2>
+      <form action="/generation" method="post">
+        <div class="input-group">
+          <label for="job_title">지원직무</label>
+          <input type="text" name="job_title" id="job_title" placeholder="지원 직무에 대해 입력해주세요." maxlength="20" required>
+          <span id="job_title-count">0/20</span>
+        </div>
+        <div class="input-group">
+          <label for="text">자기소개서 본문</label>
+          <textarea name="text" id="mce_full" placeholder="자기소개서 본문을 입력해주세요." maxlength="2000"></textarea>
+          <div id="mce_full-count">0 자, 0 단어</div>
+        </div>
+        <button type="submit" class="submit-ps">
+          <span class="button-text"><i class="fi fi-br-angle-right"></i></span>
+          <span class="spinner" style="display: none;"></span>
+        </button>
+      </form>
+    </section>
+    <section class="feedback">
+      <h2 class="feedback-title">피드백</h2>
+      <div id="result"></div>
+    </section>
+  </div>
+  <div id="autoSaveNotification">Not saved yet</div>
+</body>
+
 </html>

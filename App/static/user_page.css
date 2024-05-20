@@ -1,4 +1,11 @@
-body, html {
+* {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+body,
+html {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -7,92 +14,274 @@ body, html {
   align-items: stretch;
   background-color: #f4f4f4;
   width: 100%;
-  overflow: hidden; /* Prevents scrolling on the body itself */
+  overflow-x: hidden;
 }
 
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  height: max-content;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #333;
   color: #fff;
+  background-color: #f4f4f4;
   box-sizing: border-box;
+  padding-top: 8px;
+  margin-bottom: 20px;
+  border-bottom: 4px solid #a3a3a3;
+  transition: border-bottom 1s ease-in-out;
+  z-index: 1;
 }
 
-.logo {
-  font-size: 1.5em;
+.logo,
+.title-logo {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.title-logo {
+  text-decoration: none;
+  color: #487AFF;
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 30px;
 }
 
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two columns of equal width */
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   width: 100%;
-  flex-grow: 1; /* Allows the content area to grow and fill available space */
-  overflow-y: auto; /* Enables scrolling within the content area if needed */
+  height: 100vh;
   padding: 20px;
   margin: auto;
+  position: relative;
+  margin-top: 0;
+  padding-top: 0;
 }
 
-.footer {
-  padding: 10px 20px;
-  background-color: #333;
-  color: white;
-  text-align: center;
+.navigation-blue {
+  border-bottom: 4px solid #4C7DFF;
 }
 
-@media (max-width: 1024px) {
-  .main-content {
-    grid-template-columns: 1fr; /* Stacks the columns vertically */
-  }
+.input-group {
+  margin-top: 15px;
 }
 
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .logo, .login-form {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .login-form button {
-    width: 100%;
-  }
-}
-
-input[type="text"], textarea {
-  width: 100%;
+input[type="text"],
+textarea {
+  width: 47vw;
   padding: 8px;
   margin-top: 5px;
   margin-bottom: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  resize: none;
 }
 
-textarea#personal-statement {
-  height: 30vh;
+.statement-title {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+textarea#mce_full {
+  height: 60vh;
+  resize: none;
+  width: 45vh;
 }
 
 .feedback {
-  background-color: #c9c9c9;
-  margin-left: 20px;
-  margin-right: 50px;
+  margin-left: 40px;
+  margin-right: 10px;
 }
+
 .feedback-title {
-  margin-left: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 10px;
+  margin-bottom: 40px;
+  text-align: center;
 }
-.first-feedback, .second-feedback {
+
+.first-feedback,
+.second-feedback {
   background-color: #c9c9c9;
   color: black;
   margin-left: 20px;
   margin-right: 20px;
+}
+
+#toolbar {
+  width: auto;
+  height: auto;
+}
+
+#editor {
+  width: auto;
+  height: auto;
+  position: relative;
+}
+
+.submit-ps {
+  width: 50px;
+  height: 50px;
+  background-color: #c0c0c0;
+  border-radius: 50%;
+  border: none;
+  position: absolute;
+  top: 50%;
+  right: 48%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.submit-ps:hover {
+  background-color: #487AFF;
+}
+
+.submit-ps.loading {
+  background-color: #487AFF;
+  pointer-events: none;
+}
+
+.submit-ps .spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #487AFF;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#autoSaveNotification {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #36363696;
+  color: rgba(221, 230, 107, 0.781);
+  padding: 8px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+
+}
+
+.dropbtn {
+  border: 1px solid rgb(37, 37, 37);
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  font-weight: 400;
+  color: rgb(37, 37, 37);
+  padding: 12px;
+  width: 100px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 900;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  right: 1%;
+}
+
+.dropdown-content form {
+  margin: 0;
+}
+
+.dropdown-content button {
+  color: black;
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  border: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-content button:hover {
+  background-color: #ececec;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+#job_title-count,
+#mce_full-count {
+  font-size: 15px;
+}
+
+.result {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expandable-button {
+  border-style: none;
+  max-height: 200px;
+  /* Initial max-height, adjust based on your design */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: max-height 0.5s ease;
+}
+
+.expandable-button:hover {
+  max-height: 100%;
+  /* Maximum height when expanded */
+  white-space: normal;
+}
+
+
+.your-work {
+  width: 48vw;
+}
+
+.feedback {
+  width: 43vw;
 }

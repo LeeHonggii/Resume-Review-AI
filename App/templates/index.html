@@ -1,36 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Service Title</title>
-    <link rel="stylesheet" href="/static/index.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div class="header">
-      <div class="logo">Service Title</div>
-      <form action="/login" method="get" class="login-form">
-        <button type="submit">로그인</button>
-      </form>
-    </div>
-    <div class="navigation-bar"></div>
-    <div class="main-content">
-      <div class="title-section">
-        <div class="title">revise </br> your own</div>
-      </div>
-      <div class="right-content">
-        <div class="explanation">
-          (서비스 설명, 수정 예정) 사용자가 입력한 자유 형식의 자기소개서를 문장 단위로 분류해 필수 항목
-          유무를 판별하는 모델을 개발하고, 생성형 모델/chatGPT 등을 활용해 2가지
-          이상의 피드백 옵션을 제안한다.
-        </div>
-        <form action="/login" method="get" class="start-form">
-          <button type="submit" class="start-button">이용 시작</button>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomePage</title>
+  <link rel="stylesheet" href="/static/index.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
+    {% if request.session.get('username') %}
+    <div class="dropdown">
+      <button class="dropbtn">Menu</button>
+      <div class="dropdown-content">
+        <form action="/user_page" method="get">
+          <button type="submit" class="user_page">Main</button>
         </form>
+        <form action="/history" method="get">
+          <button type="submit" class="history">History</button>
+        </form>
+
+        <form action="/logout" method="post">
+          <button type="submit" class="logout">Logout</button>
+        </form>
+
       </div>
     </div>
-  </body>
+    {% else %}
+    <form action="/login" method="get" class="login-form">
+      <button type="submit" class="upper-login" onmouseover="toggleNavbarColor(true)"
+        onmouseout="toggleNavbarColor(false)">
+        로그인
+      </button>
+    </form>
+    {% endif %}
+  </header>
+  <div class="main-content">
+    <div class="title-section">
+      <div class="title">revise your own</div>
+      <div class="subtitle">
+        <a class="title-explanation">ME:VISE에서 스스로 자기소개서를 완성해보세요!</a>
+      </div>
+      {% if request.session.get('username') %}
+      <form action="/user_page" method="get" class="start-form">
+        <button type="submit" class="start-button" onmouseover="fillcolor(true)" onmouseout="fillcolor(false)">
+          이용 시작
+        </button>
+      </form>
+      {% else %}
+      <form action="/login" method="get" class="start-form">
+        <button type="submit" class="start-button" onmouseover="fillcolor(true)" onmouseout="fillcolor(false)">
+          이용 시작
+        </button>
+      </form>
+      {% endif %}
+    </div>
+    <img class="explanation" src="/static/home_1280.png" />
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const dropdownExists = document.querySelector(".dropdown") !== null;
+      const navbar = document.querySelector(".header");
+      const loginButton = document.querySelector(".upper-login");
+
+      if (dropdownExists) {
+        navbar.classList.add("navigation-blue");
+      } else if (loginButton) {
+        loginButton.addEventListener('mouseover', () => navbar.classList.add("navigation-blue"));
+        loginButton.addEventListener('mouseout', () => navbar.classList.remove("navigation-blue"));
+      }
+    });
+    function fillcolor(add) {
+      const button = document.querySelector(".start-button");
+      if (add) {
+        button.classList.add("button-blue");
+      } else {
+        button.classList.remove("button-blue");
+      }
+    }
+  </script>
+</body>
+
 </html>

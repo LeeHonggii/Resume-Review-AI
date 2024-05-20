@@ -17,24 +17,20 @@ html {
 }
 
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  height: max-content;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #f4f4f4;
   color: #fff;
+  background-color: #f4f4f4;
   box-sizing: border-box;
-  position: relative;
-}
-
-.header::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: #487AFF;
+  padding-top: 10px;
+  margin-bottom: auto;
+  border-bottom: 4px solid #a3a3a3;
+  transition: border-bottom 1s ease-in-out;
+  z-index: 1;
 }
 
 .logo,
@@ -54,6 +50,10 @@ html {
   font-size: 30px;
 }
 
+.navigation-blue {
+  border-bottom: 4px solid #4C7DFF;
+}
+
 .main-content {
   display: flex;
   flex-direction: column;
@@ -63,36 +63,23 @@ html {
   position: relative;
   margin-top: auto;
   margin-bottom: auto;
-  transform: translateY(-30px);
+  transform: translateY(-40px);
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 300px;
-}
-
-#label-username,
-#label-password {
-  align-self: flex-start;
-}
-
-#label-password {
-  margin-top: 20px;
-}
-
-input[type="text"],
-input[type="password"],
-.lower-login {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  box-shadow: none;
-  border: 2px solid;
-  border-color: #a3a3a3;
-  border-radius: 10px;
+/* Position the upper-login button to the right */
+button.upper-login {
+  height: 100%;
+  width: auto;
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0 20px;
+  outline: none;
+  align-self: stretch;
+  margin-left: auto;
+  /* Auto margin for alignment to the right */
 }
 
 .line {
@@ -118,60 +105,92 @@ input[type="password"],
   /* Ensure height is sufficient to be visible */
 }
 
-button.lower-login,
-button.signup {
-  padding: 10px;
-  margin: 5px 0;
-  background-color: #487AFF;
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button.lower-login {
-  margin-top: 20px;
-}
-
-button.reset-password {
-  padding: 10px;
-  margin: 5px 0;
-  background-color: #d9d9d9;
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-button {
-  width: 100%;
-}
-
-button:hover {
-  background-color: #a3a3a3;
-}
-
 .info {
   font-size: 30px;
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Input labels */
+#label-username,
+#label-password,
+#label-email,
+#label-confirm-password {
+  align-self: flex-start;
+  margin-top: 5px;
+}
+
+/* Input fields */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+.lower-login {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  box-shadow: none;
+  border: 2px solid #a3a3a3;
+  border-radius: 10px;
+}
+
+input[type='password'] {
+  border-color: #4879ff80;
+}
+
+button.signup {
+  width: 108%;
+  /* Full width for buttons */
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #487AFF;
+  /* Color adjustment */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Styling for lower login button */
+button.lower-login {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #c3c3c3;
+  /* Color adjustment */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 108%;
+}
+
+button.lower-login:hover,
+button.signup:hover {
+  background-color: #a3a3a3;
+}
+
+/* Margin for signup button */
+button.signup {
+  margin-top: 20px;
+}
+
+/* Error message styling */
 .error {
   color: red;
   font-size: 0.9em;
   margin: 5px 0;
 }
 
-button,
-button.lower-login {
-  width: 108%;
-}
-
 @keyframes shake {
 
   0%,
   100% {
-    transform: translateX(0) translateY(-30px);
+    transform: translateX(0) translateY(-40px);
   }
 
   10%,
@@ -179,14 +198,14 @@ button.lower-login {
   50%,
   70%,
   90% {
-    transform: translateX(-10px) translateY(-30px);
+    transform: translateX(-10px) translateY(-40px);
   }
 
   20%,
   40%,
   60%,
   80% {
-    transform: translateX(10px) translateY(-30px);
+    transform: translateX(10px) translateY(-40px);
   }
 }
 
