@@ -150,7 +150,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // Attach click event listeners to all result buttons after they are added
           document.querySelectorAll(".select-result-button").forEach(button => {
               button.addEventListener("click", function() {
-                  alert(`Selected result: ${this.getAttribute("title")}`);
+                  var textToCopy = this.getAttribute("title"); 
+                  tinymce.get("mce_full").execCommand('mceInsertContent', false, textToCopy); 
               });
           });
       } else {
