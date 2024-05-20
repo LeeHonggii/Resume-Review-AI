@@ -186,8 +186,6 @@ app.add_middleware(
     session_cookie="session_id",
     max_age=3600,  # Session timeout in seconds (1 hour)
 )
-
-client = create_openai_client()
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
