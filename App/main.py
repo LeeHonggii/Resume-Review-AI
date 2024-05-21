@@ -196,7 +196,7 @@ def classify_text(text, job_title):
         # print("입사 동기 및 포부 missing.")
         print("generate_target:", generate_target)
     comp_name, comp_info = company_info.get_company_info(job_title)
-    return generate_target, negative_result, outClass, outList, outText, comp_info
+    return generate_target, negative_result, outClass, outList, outText, comp_name, comp_info
 
 
 # LSTM으로 작동하는법
@@ -537,7 +537,7 @@ async def classify_text_api(data: dict):
     job_title = data.get("job_title")
     print(job_title)
 
-    generate_target, negative_result, outClass, outList, outText, comp_info = (
+    generate_target, negative_result, outClass, outList, outText, comp_name, comp_info = (
         classify_text(text, job_title)
     )
 
@@ -583,6 +583,7 @@ async def classify_text_api(data: dict):
     return JSONResponse(
         content={
             "generate_target": generate_target,
+            "comp_name": comp_name,
             "comp_info": comp_info,
             "negative_result": negative_result,
             "outText": outText,
