@@ -126,6 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             generate_target: classifyData.generate_target,
+            class_result: classifyData.class_result,
             job_title: jobTitle,
             text: editorContent,
             comp_info: classifyData.comp_info,

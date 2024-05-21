@@ -595,6 +595,7 @@ async def generate_gpt_cohere_api(data: dict):
     generate_target = data.get("generate_target")
     comp_info = data.get("comp_info")
     outText = data.get("outText")
+    class_result = data.get("class_result")
     # generate_target, negative_result, outClass, outList, outText, comp_info = (
     #     classify_text(text, job_title)
     # )
@@ -603,10 +604,10 @@ async def generate_gpt_cohere_api(data: dict):
     print("text:", text)
 
     gpt_response = await gpt_generation(
-        generate_target, job_title, text, comp_info, outText
+        generate_target, job_title, text, comp_info, outText, class_result
     )
     cohere_response = await cohere_generation(
-        generate_target, job_title, text, comp_info
+        generate_target, job_title, text, comp_info, outText, class_result
     )
     return JSONResponse(
         content={"gpt_response": gpt_response, "cohere_response": cohere_response}
