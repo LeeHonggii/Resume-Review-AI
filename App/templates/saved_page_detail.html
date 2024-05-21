@@ -18,11 +18,12 @@
                 resize: false,
                 menubar: false,
                 toolbar: [
-                    { name: 'history', items: ['undo', 'redo'] },
-                    { name: 'styles', items: ['styles'] },
-                    { name: 'formatting', items: ['bold', 'italic'] },
-                    { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
-                    { name: 'indentation', items: ['outdent', 'indent'] }
+                { name: 'history', items: ['undo', 'redo'] },
+                { name: 'styles', items: ['styles'] },
+                { name: 'formatting', items: ['bold', 'italic'] },
+                { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
+                { name: 'backcolor', items: ['backcolor']},
+                { name: 'file', items: ['print']}
                 ],
                 setup: function (editor) {
                     editor.on("init", function () {
