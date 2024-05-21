@@ -20,6 +20,7 @@ from konlpy.tag import Okt
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 datapath = "./App/initdata/"
+# datapath = "./initdata/"
 
 class Classfication_model:
   def __init__(self,
@@ -185,11 +186,6 @@ class Classfication_model:
 
     return test_x, test_y
 
-
-  # np.set_printoptions(suppress=True, precision=2)
-  # for i in range(len(pred)):
-  #   print(i, pred[i], classification[np.argmax(pred[i])], unk_count(list(test_x[i])), testdf['Sentence'][i])
-
   def prepare_sample(self, filename):
     inList = []
     with open(filename, "r", encoding="utf-8") as inFp:
@@ -207,12 +203,11 @@ class Classfication_model:
         inStr = inStr.replace("<p>", "").replace("</p>", "")
         if len(inStr) == 0:
             continue
-        # if inStr[-1] != '.':
-        #   inStr = inStr + '.'
         tList = inStr.split('.')
-        tList = tList[:-1]
-        # if len(tList) != 1:
-        #   tList = tList[:-1]
+        # print(tList)
+        if tList[-1] == '':
+          tList = tList[:-1]
+        # print(tList)
         for tStr in tList:
             t = tStr.strip() + '.'
             outList.append(t)
@@ -230,10 +225,11 @@ class Classfication_model:
     print(text) if verbose else None
 
     predict, outList = self.classify(text)
+    print("sample_classification_test: input length:", len(outList))
     for i in range(len(predict)):
       print(predict[i], self.class_name[np.argmax(predict[i])], outList[i])
 
-    print(datapath+file_name, "finised\n")
+    print(file_name, "finised\n")
     print(predict) if verbose else None
 
   def classify(self, inList):
@@ -249,3 +245,6 @@ class Classfication_model:
     # logger.debug(f"predict: {predict}")
 
     return predict, outList
+
+# classifier = Classfication_model()
+# classifier.sample_classification_test(file_name=datapath+'sample-debug.txt')
