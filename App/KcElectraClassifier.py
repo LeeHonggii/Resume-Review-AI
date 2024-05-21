@@ -40,6 +40,7 @@ class KcElectraClassifierModel:
     def prepare_target(self, text, verbose=False):
         inList = text.split('\n')
         outList = []
+
         for inStr in inList:
             if inStr == '\n':
                 continue
@@ -47,7 +48,8 @@ class KcElectraClassifierModel:
             if len(inStr) == 0:
                 continue
             tList = inStr.split('.')
-            tList = tList[:-1]
+            if tList[-1] == '':
+                tList = tList[:-1]
             for tStr in tList:
                 t = tStr.strip() + '.'
                 outList.append(t)
