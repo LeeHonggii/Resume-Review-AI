@@ -156,7 +156,30 @@
             comp_info: classifyData.comp_info,
             outText: classifyData.outText
           })
-        }).then(response => response.ok ? response.json().then(data => handleData(data)) : handleError(new Error("Failed to fetch cohere data")));
+        }).then(response => {
+          if (response.ok) {
+            return response.json().then(data => {
+              handleData(data);
+              return fetch("/save_page_content", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  job_title: jobTitle,
+                  text: editorContent,
+                  result: JSON.stringify(data) // Assuming you want to store the response as 'result'
+                })
+              });
+            });
+          } else {
+            return handleError(new Error("Failed to fetch cohere data"));
+          }
+        }).catch(error => {
+          handleError(error);
+        }).finally(() => {
+          submitButton.classList.remove("loading");
+          buttonText.style.display = "block";
+          spinner.style.display = "none";
+        });
 
       });
 
@@ -169,8 +192,8 @@
                 const newResult = document.createElement("div");
                 newResult.className = "result";
                 newResult.innerHTML = `<button class="select-result-button expandable-button" data-value="${value}">
-                                ${key}: ${value}
-                              </button>`;
+                                  ${key}: ${value}
+                                </button>`;
                 resultDiv.appendChild(newResult);
                 newResult.firstChild.addEventListener('click', function () {
                   const textToCopy = this.getAttribute('data-value');
