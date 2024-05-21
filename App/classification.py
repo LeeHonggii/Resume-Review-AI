@@ -51,9 +51,9 @@ class Classfication_model:
       traindf = self.prepare_data(data_file)
       self.prepare_training(traindf)
       self.model = load_model(model_file)
-      print("Simple LSTM classification model loaded.")
+      print("**Simple LSTM classification model loaded.")
     else:
-      print(f"LSTM classification model not found. Training starts.: {model_file}")
+      print(f"**LSTM classification model not found. Training starts.: {model_file}")
 
       traindf = self.prepare_data(data_file)
       testdf = self.prepare_data(test_file)
@@ -143,7 +143,7 @@ class Classfication_model:
     print(tokenized_x[:2]) if verbose else None
     # print(traindf['Sentence'][:1]) if verbose else None
 
-    self.vocab = self.make_vocab(tokenized_x, True)
+    self.vocab = self.make_vocab(tokenized_x)
     self.word_to_index = {word: index for index, word in enumerate(self.vocab)}
     self.index_to_word = {index: word for index, word in enumerate(self.vocab)}
 

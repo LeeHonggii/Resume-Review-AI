@@ -29,6 +29,7 @@ class VectorDB:
         self.strong_threshold = strong_threshold
         self.weak_threshold = weak_threshold
         self.max_size = max_size
+        self.buffer_position = 0
         self.client = chromadb.PersistentClient(path=self.db_path)
         self.collection = self.client.get_or_create_collection(
             name="coverletter",
@@ -73,13 +74,16 @@ class VectorDB:
                 chunk_metadatas = self.metadatas[start_idx:end_idx]
 
                 self.collection.add(embeddings=chunk_embedding, ids=chunk_ids, metadatas= chunk_metadatas)
+
+            print(F"**VDB initialized form {initial_data}")
         else:
-            ids = self.collection.get({})["ids"]    # future improve
+            ids = self.collection.get(include=["documents"])["ids"]    # future improve
+            # print(ids)
             self.current_index = maxx([int(x) for x in ids]) + 1
+            print(F"**VDB Loaded from existing DB{self.db_path}")
             print(F"VDB size: {self.collection.count()}")
             print(F"VDB index: {self.current_index}")
 
-        self.buffer_position = 0
         self.ids = []
         self.metadatas = []
         self.embeddings = []
@@ -91,8 +95,10 @@ class VectorDB:
         )
         n_result = len(result['ids'][0])
         # print(n_result)
-        print(result)
+        # print(result)
         result_list = []
+
+        # duplicate elimination
         if result['distances'][0][0] < self.weak_threshold:
             result_list.append(result['metadatas'][0][0]['suggestion'])
             for i in range(1, n_result):
