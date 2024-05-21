@@ -18,7 +18,7 @@ import logging
 import cohere
 import pytz
 from openai import OpenAI
-
+from collections import Counter
 # classification model setup
 import numpy as np
 
@@ -48,7 +48,7 @@ API_URL = os.getenv("API_URL")
 
 
 async def gpt_generation(
-    generate_target: str, job_title: str, text: str, comp_info: str, outtext: str
+    generate_target: str, job_title: str,text: str, comp_info: str, outText: str
 ) -> str:
     if comp_info != "":
         comp_prompt = (
@@ -66,7 +66,7 @@ async def gpt_generation(
     )
     messages = [
         {"role": "user", "content": prompt1},
-        {"role": "user", "content": outtext},
+        {"role": "user", "content": outText},
         {"role": "user", "content": prompt2},
     ]
     try:
@@ -532,30 +532,65 @@ async def classify_text_api(data: dict):
     text = data.get("text")
     job_title = data.get("job_title")
     print(job_title)
+
     generate_target, negative_result, outClass, outList, outText, comp_info = (
         classify_text(text, job_title)
     )
+
     print(comp_info)
+
+    # Count the occurrences of each class
+    class_count = Counter(outClass)
+
+    # Mapping from class index to class name
+    classifier = KcElectraClassifierModel()
+    class_name_mapping = {v: k for k, v in classifier.label_mapping.items()}
+
+    # Create a list of (class_name, count) tuples and sort it by count in descending order
+    sorted_class_count = sorted(
+        [(class_name_mapping[class_idx], count) for class_idx, count in class_count.items()],
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    # Add classes with zero count that were not in the original count
+    for class_idx, class_name in class_name_mapping.items():
+        if class_name not in [name for name, count in sorted_class_count]:
+            sorted_class_count.append((class_name, 0))
+
+    # Create the class_result sentences
+    class_result_sentences = []
+    for class_name, count in sorted_class_count:
+        if count == 0:
+            sentence = f"{class_name}로 분류된 값은 없습니다."
+        else:
+            sentence = f"{class_name}로 분류된 값은 {count}개입니다."
+        class_result_sentences.append(sentence)
+
+    # Join sentences into a single result string
+    class_result = " ".join(class_result_sentences)
+
     outClass = [int(x) for x in outClass]
     outList = [str(x) for x in outList]
+
     return JSONResponse(
         content={
             "generate_target": generate_target,
-            "company_info": comp_info,
+            "comp_info": comp_info,
             "negative_result": negative_result,
             "outText": outText,
+            "class_result": class_result
         }
     )
 
 
 @app.post("/generate_gpt_cohere")
 async def generate_gpt_cohere_api(data: dict):
-    generate_target = data.get("generate_target")
     job_title = data.get("job_title")
     text = data.get("text")
-    comp_info = data.get("comp_info")
-    outText = data.get("outText")
-
+    generate_target, negative_result, outClass, outList, outText, comp_info = (
+        classify_text(text, job_title)
+    )
     print("generate_target:", generate_target)
     print("job_title:", job_title)
     print("text:", text)
@@ -584,6 +619,7 @@ async def generate_vector_db_api(data: dict):
     job_title = data.get("job_title")
     comp_name = data.get("comp_name")
     comp_info = data.get("comp_info")
+
 
     vdb_prompt = vector_db.vdb_prompt(generate_target, job_title, comp_name, comp_info)
     vdb_result = vector_db.query(vdb_prompt)
