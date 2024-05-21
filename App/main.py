@@ -19,6 +19,7 @@ import cohere
 import pytz
 from openai import OpenAI
 from collections import Counter
+
 # classification model setup
 import numpy as np
 
@@ -48,7 +49,7 @@ API_URL = os.getenv("API_URL")
 
 
 async def gpt_generation(
-    generate_target: str, job_title: str,text: str, comp_info: str, outText: str
+    generate_target: str, job_title: str, text: str, comp_info: str, outText: str
 ) -> str:
     if comp_info != "":
         comp_prompt = (
@@ -548,9 +549,12 @@ async def classify_text_api(data: dict):
 
     # Create a list of (class_name, count) tuples and sort it by count in descending order
     sorted_class_count = sorted(
-        [(class_name_mapping[class_idx], count) for class_idx, count in class_count.items()],
+        [
+            (class_name_mapping[class_idx], count)
+            for class_idx, count in class_count.items()
+        ],
         key=lambda x: x[1],
-        reverse=True
+        reverse=True,
     )
 
     # Add classes with zero count that were not in the original count
@@ -579,7 +583,7 @@ async def classify_text_api(data: dict):
             "comp_info": comp_info,
             "negative_result": negative_result,
             "outText": outText,
-            "class_result": class_result
+            "class_result": class_result,
         }
     )
 
@@ -588,9 +592,12 @@ async def classify_text_api(data: dict):
 async def generate_gpt_cohere_api(data: dict):
     job_title = data.get("job_title")
     text = data.get("text")
-    generate_target, negative_result, outClass, outList, outText, comp_info = (
-        classify_text(text, job_title)
-    )
+    generate_target = data.get("generate_target")
+    comp_info = data.get("comp_info")
+    outText = data.get("outText")
+    # generate_target, negative_result, outClass, outList, outText, comp_info = (
+    #     classify_text(text, job_title)
+    # )
     print("generate_target:", generate_target)
     print("job_title:", job_title)
     print("text:", text)
@@ -619,7 +626,6 @@ async def generate_vector_db_api(data: dict):
     job_title = data.get("job_title")
     comp_name = data.get("comp_name")
     comp_info = data.get("comp_info")
-
 
     vdb_prompt = vector_db.vdb_prompt(generate_target, job_title, comp_name, comp_info)
     vdb_result = vector_db.query(vdb_prompt)

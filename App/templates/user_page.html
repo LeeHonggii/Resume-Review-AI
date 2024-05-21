@@ -128,8 +128,8 @@ document.addEventListener("DOMContentLoaded", function () {
             generate_target: classifyData.generate_target,
             job_title: jobTitle,
             text: editorContent,
-            comp_info: "",
-            outtext: classifyData.outText
+            comp_info: classifyData.comp_info,
+            outText: classifyData.outText
           })
         }),
         fetch("/generate_llm", {
