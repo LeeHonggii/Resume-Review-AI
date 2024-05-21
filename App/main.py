@@ -21,14 +21,15 @@ from openai import OpenAI
 
 # classification model setup
 import numpy as np
-from classification import Classfication_model
+
+# from classification import Classfication_model
 from KcElectraClassifier import KcElectraClassifierModel
-from company_info import  Company_info
+from company_info import Company_info
 from vectorDB import VectorDB
 import os
 
 
-#classifier = Classfication_model()
+# classifier = Classfication_model()
 classifier = KcElectraClassifierModel()
 company_info = Company_info()
 vector_db = VectorDB()
@@ -41,19 +42,22 @@ if not OPENAI_API_KEY:
 if not COHERE_API_KEY:
     raise ValueError("COHERE_API_KEY environment variable is not set.")
 
-openai_client = OpenAI(api_key = OPENAI_API_KEY)
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
 co = cohere.Client(api_key=COHERE_API_KEY)
 API_URL = os.getenv("API_URL")
 
-async def gpt_generation(generate_target:str, job_title: str, text: str, comp_info : str, outtext : str) -> str:
+
+async def gpt_generation(
+    generate_target: str, job_title: str, text: str, comp_info: str, outtext: str
+) -> str:
     if comp_info != "":
-        comp_prompt = f"지원하려는 회사의 인재상은 {comp_info}. 너무 직접적인 표현은 좋지 않아."
+        comp_prompt = (
+            f"지원하려는 회사의 인재상은 {comp_info}. 너무 직접적인 표현은 좋지 않아."
+        )
     else:
         comp_prompt = "가진 인재상 정보는 없어."
 
-    prompt1 = (
-        f"내가 작성한 자기소개서을 보내줄게 감정대로 분류해서 보내줘 그럼 내가 다음 요구사항 보내줄게 형식은 문장 - 분류값 이야 // {text}"
-    )
+    prompt1 = f"내가 작성한 자기소개서을 보내줄게 감정대로 분류해서 보내줘 그럼 내가 다음 요구사항 보내줄게 형식은 문장 - 분류값 이야 // {text}"
     prompt2 = (
         f"잘봤어 그러면 다음 규칙에 맞게 수정사항만 빈줄없이 보내줘"
         f"1.해당 자소서의 직무정보는 {job_title} 이고 {comp_prompt}\n"
@@ -63,7 +67,7 @@ async def gpt_generation(generate_target:str, job_title: str, text: str, comp_in
     messages = [
         {"role": "user", "content": prompt1},
         {"role": "user", "content": outtext},
-        {"role": "user", "content": prompt2}
+        {"role": "user", "content": prompt2},
     ]
     try:
         chat_completion = openai_client.chat.completions.create(
@@ -74,6 +78,7 @@ async def gpt_generation(generate_target:str, job_title: str, text: str, comp_in
         logger.error(f"Error processing GPT response: {str(e)}")
         return f"서버 오류 발생: {str(e)}"
 
+
 def chat2(prompt: str, text: str):
     response = co.chat(
         chat_history=[
@@ -83,8 +88,11 @@ def chat2(prompt: str, text: str):
         connectors=[{"id": "web-search"}],
     )
     return response
-    
-async def cohere_generation(generate_target: str, job_title: str, text: str, comp_info: str) -> str:
+
+
+async def cohere_generation(
+    generate_target: str, job_title: str, text: str, comp_info: str
+) -> str:
     prompt = (
         f"자소서 내용 분석 (직무: {job_title}): {text}\n"
         "1. 해당 직무에 필요한 경험, 지원 동기 및 포부, 강점, 단점이 얼마나 잘 매치되는지 분석해줘.\n"
@@ -145,7 +153,6 @@ async def llm_generation(text: str) -> str:
         return f"서버 오류 발생: {str(e)}"
 
 
-#kcElectraClassifier사용
 def classify_text(text):
     classifier.load_model()
     class_count = [0, 0, 0]
@@ -158,37 +165,40 @@ def classify_text(text):
     np.set_printoptions(suppress=True, precision=2)
 
     for i in range(len(predict)):
-        c = np.argmax(predict[i])
+        c = int(np.argmax(predict[i]))
         class_count[c] += 1
         outClass.append(c)
         outText.append(f"{outList[i]} - {classifier.class_name[c]}")
-        #print(predict[i], classifier.class_name[c], outList[i])
+        # print(predict[i], classifier.class_name[c], outList[i])
 
     outText = " ".join(outText)
-    #print("class_count:", class_count)
-    #print(outClass)
-    #print(outList)
+    # print("class_count:", class_count)
+    # print(outClass)
+    # print(outList)
     print("outText : ", outText)
 
     if class_count[0] != 0:  # negative sentence
-        negative_values = [outList[i] for i in range(len(predict)) if np.argmax(predict[i]) == 0]
-        negative_result = ', '.join(negative_values)
+        negative_values = [
+            outList[i] for i in range(len(predict)) if np.argmax(predict[i]) == 0
+        ]
+        negative_result = ", ".join(negative_values)
     else:
         negative_result = "None"
 
     if class_count[1] != 0:
-        generate_target = '성공 경험'
-        #print("성공 경험 missing.")
+        generate_target = "성공 경험"
+        # print("성공 경험 missing.")
     if class_count[2] != 0:
         if generate_target:
-            generate_target += ', '
-        generate_target += '입사 동기 및 포부'
-        #print("입사 동기 및 포부 missing.")
+            generate_target += ", "
+        generate_target += "입사 동기 및 포부"
+        # print("입사 동기 및 포부 missing.")
         print("generate_target:", generate_target)
 
     return generate_target, negative_result, outClass, outList, outText
 
-#LSTM으로 작동하는법
+
+# LSTM으로 작동하는법
 # def classify_text(text):
 #     class_count = [0, 0, 0]
 #     outClass = []
@@ -235,7 +245,6 @@ SessionLocal = sessionmaker(
 )
 
 
-
 app.add_middleware(
     SessionMiddleware,
     secret_key="your_secret_key_here",
@@ -252,6 +261,7 @@ app.mount(
     StaticFiles(directory=str(Path(__file__).parent / "static")),
     name="static",
 )
+
 
 # User model
 class User(Base):
@@ -284,6 +294,7 @@ async def get_session() -> AsyncSession:
     async with SessionLocal() as session:
         yield session
 
+
 # Utility functions for user handling
 async def get_user_by_username(username: str, session: AsyncSession) -> User:
     stmt = select(User).where(User.username == username)
@@ -307,10 +318,12 @@ async def add_user(username: str, password: str, session: AsyncSession):
     try:
         await session.commit()
         logger.debug(
-            f"User {username} added successfully with password hash {hashed_password}")
+            f"User {username} added successfully with password hash {hashed_password}"
+        )
     except Exception as e:
         logger.error(f"Error adding user: {str(e)}")
         await session.rollback()
+
 
 # Route handlers
 @app.get("/")
@@ -358,8 +371,7 @@ async def handle_signup(
         logger.error(f"Error during signup: {str(e)}")
         return templates.TemplateResponse(
             "signup.html",
-            {"request": request,
-                "error_message": f"An error occurred: {str(e)}"},
+            {"request": request, "error_message": f"An error occurred: {str(e)}"},
         )
 
 
@@ -377,11 +389,13 @@ async def login(
 ):
     user = await get_user_by_username(username, session)
     hashed_password = hashlib.sha256(
-        password.encode()).hexdigest()  # Hash the input password
+        password.encode()
+    ).hexdigest()  # Hash the input password
 
     if user:
         logger.debug(
-            f"User found: {user.username}, Stored hash: {user.password}, Provided hash: {hashed_password}")
+            f"User found: {user.username}, Stored hash: {user.password}, Provided hash: {hashed_password}"
+        )
     else:
         logger.debug(f"User not found: {username}")
 
@@ -398,8 +412,7 @@ async def login(
         )
         return response
     else:
-        logger.error(
-            f"Login failed: Invalid username or password for user {username}")
+        logger.error(f"Login failed: Invalid username or password for user {username}")
         return HTMLResponse("Invalid username or password", status_code=401)
 
 
@@ -437,15 +450,17 @@ async def history(request: Request, session: AsyncSession = Depends(get_session)
     if not user:
         return RedirectResponse(url="/login", status_code=303)
 
-    saved_contents = await session.execute(select(SavedPageContent).where(SavedPageContent.username == username))
+    saved_contents = await session.execute(
+        select(SavedPageContent).where(SavedPageContent.username == username)
+    )
     saved_pages = saved_contents.scalars().all()
 
-    kst = pytz.timezone('Asia/Seoul')
+    kst = pytz.timezone("Asia/Seoul")
     # Convert timestamps to KST and format to a human-readable format
     for page in saved_pages:
         utc_time = datetime.fromisoformat(page.timestamp)
         kst_time = utc_time.astimezone(kst)
-        page.timestamp = kst_time.strftime('%Y-%m-%d %H:%M:%S')
+        page.timestamp = kst_time.strftime("%Y-%m-%d %H:%M:%S")
 
     return templates.TemplateResponse(
         "history.html", {"request": request, "saved_pages": saved_pages, "user": user}
@@ -453,12 +468,16 @@ async def history(request: Request, session: AsyncSession = Depends(get_session)
 
 
 @app.get("/saved_page/{page_id}", response_class=HTMLResponse)
-async def saved_page_detail(request: Request, page_id: int, session: AsyncSession = Depends(get_session)):
+async def saved_page_detail(
+    request: Request, page_id: int, session: AsyncSession = Depends(get_session)
+):
     username = request.session.get("username")
     if not username:
         return RedirectResponse(url="/login", status_code=303)
 
-    page_data = await session.execute(select(SavedPageContent).where(SavedPageContent.id == page_id))
+    page_data = await session.execute(
+        select(SavedPageContent).where(SavedPageContent.id == page_id)
+    )
     saved_page = page_data.scalars().first()
 
     if not saved_page:
@@ -470,7 +489,9 @@ async def saved_page_detail(request: Request, page_id: int, session: AsyncSessio
 
 
 @app.post("/save_page_content")
-async def save_page_content(request: Request, session: AsyncSession = Depends(get_session)):
+async def save_page_content(
+    request: Request, session: AsyncSession = Depends(get_session)
+):
     data = await request.json()
     username = request.session.get("username")
 
@@ -482,7 +503,7 @@ async def save_page_content(request: Request, session: AsyncSession = Depends(ge
     result = data.get("result")
 
     # Convert current time to KST
-    kst = pytz.timezone('Asia/Seoul')
+    kst = pytz.timezone("Asia/Seoul")
     current_time_utc = datetime.utcnow().replace(tzinfo=pytz.utc)
     current_time_kst = current_time_utc.astimezone(kst).isoformat()
 
@@ -491,68 +512,83 @@ async def save_page_content(request: Request, session: AsyncSession = Depends(ge
         job_title=job_title,
         text=text,
         result=result,
-        timestamp=current_time_kst
+        timestamp=current_time_kst,
     )
     session.add(saved_content)
     try:
         await session.commit()
         logger.debug(f"Page content saved successfully for user {username}")
-        return JSONResponse(content={"message": "Page content saved successfully"}, status_code=200)
+        return JSONResponse(
+            content={"message": "Page content saved successfully"}, status_code=200
+        )
     except Exception as e:
         logger.error(f"Error saving page content for user {username}: {str(e)}")
         await session.rollback()
         raise HTTPException(status_code=500, detail="Error saving page content")
 
 
-@app.post("/generation")
-async def chat_analysis(request: Request):
-    data = await request.json()
-    job_title = data.get("job_title")
-    #text = data.get("text")
-
-    # classification input text
+@app.post("/classify_text")
+async def classify_text_api(data: dict):
+    text = data.get("text")
     generate_target, negative_result, outClass, outList, outText = classify_text(text)
+    outClass = [int(x) for x in outClass]
+    outList = [str(x) for x in outList]
+    return JSONResponse(
+        content={
+            "generate_target": generate_target,
+            "negative_result": negative_result,
+            "outClass": outClass,
+            "outList": outList,
+            "outText": outText,
+        }
+    )
 
-    # Get company details
-    comp_name, comp_info = company_info.get_company_info(job_title)
 
-    # Generate VDB prompt
+@app.post("/generate_gpt_cohere")
+async def generate_gpt_cohere_api(data: dict):
+    generate_target = data.get("generate_target")
+    job_title = data.get("job_title")
+    text = data.get("text")
+    comp_info = data.get("comp_info")
+    outtext = data.get("outtext")
+
+    print("generate_target:", generate_target)
+    print("job_title:", job_title)
+    print("text:", text)
+
+    gpt_response = await gpt_generation(
+        generate_target, job_title, text, comp_info, outtext
+    )
+    cohere_response = await cohere_generation(
+        generate_target, job_title, text, comp_info
+    )
+    return JSONResponse(
+        content={"gpt_response": gpt_response, "cohere_response": cohere_response}
+    )
+
+
+@app.post("/generate_llm")
+async def generate_llm_api(data: dict):
+    text = data.get("text")
+    llm_response = await llm_generation(text)
+    return JSONResponse(content={"llm_response": llm_response})
+
+
+@app.post("/generate_vector_db")
+async def generate_vector_db_api(data: dict):
+    generate_target = data.get("generate_target")
+    job_title = data.get("job_title")
+    comp_name = data.get("comp_name")
+    comp_info = data.get("comp_info")
+
     vdb_prompt = vector_db.vdb_prompt(generate_target, job_title, comp_name, comp_info)
     vdb_result = vector_db.query(vdb_prompt)
     if len(vdb_result) > 0:
         vdb_reponse = vdb_result[0]
     else:
         vdb_reponse = "NULL"
-    print(f"({vdb_prompt}) -> {vdb_reponse}")
-
-    # Generate responses from different models
-    gpt_response = await gpt_generation(generate_target, job_title, text, comp_info,outText) or "실패"
-    vector_db.add(vdb_prompt, gpt_response, True)
-    # if gpt_response is valid:
-    #     vector_db.add(vdb_prompt, gpt_response)
-
-    # cohere_response = await cohere_generation(generate_target, job_title, text, comp_info) or "실패"
-    # if cohere_response is valid:
-    #     vector_db.add(vdb_prompt, cohere_response)
-    cohere_response = "NULL"   #temporally
-
-    # llm_response = await llm_generation(text) or "실패"
-    llm_response = "NULL"   #temporally
-    # if llm_response is valid:
-    #     vector_db.add(vdb_prompt, llm_response)
-
-    # Add vdb_prompt to the response
-    analysis_results = {
-        "vdb_reponse": vdb_reponse,
-        "gpt_response": gpt_response,
-        "cohere_response": cohere_response,
-        "llm_response": llm_response,
-        "negative_result": negative_result
-    }
-
-    return JSONResponse(content=analysis_results)
+    return JSONResponse(content={"vdb_response": vdb_reponse})
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8888,
-                log_level="debug", reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8888, log_level="debug")

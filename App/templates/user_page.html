@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,101 +88,149 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  const form = document.querySelector('form[action="/generation"]');
+  const form = document.querySelector('form[action="/classify_text"]');
   const submitButton = document.querySelector(".submit-ps");
   const buttonText = submitButton.querySelector(".button-text");
   const spinner = submitButton.querySelector(".spinner");
 
   form.addEventListener("submit", function (event) {
-      event.preventDefault();
-      synchronizeTextarea(tinymce.get("mce_full"));
-      var editorContent = tinymce.get("mce_full").getContent();
-      if (editorContent.length > 2000) {
-          alert("Text exceeds the maximum allowed length of 2000 characters.");
-          return false;
-      }
-      var jobTitle = document.getElementById("job_title").value;
+    event.preventDefault();
+    synchronizeTextarea(tinymce.get("mce_full"));
+    var editorContent = tinymce.get("mce_full").getContent();
+    if (editorContent.length > 2000) {
+      alert("Text exceeds the maximum allowed length of 2000 characters.");
+      return false;
+    }
+    var jobTitle = document.getElementById("job_title").value;
 
-      submitButton.classList.add("loading");
-      buttonText.style.display = "none";
-      spinner.style.display = "block";
+    submitButton.classList.add("loading");
+    buttonText.style.display = "none";
+    spinner.style.display = "block";
 
-      // First, make the call to the generation endpoint
-      fetch("/generation", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ text: editorContent, job_title: jobTitle })
-      })
+    // First, make the call to the classify_text endpoint
+    fetch("/classify_text", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: editorContent })
+    })
       .then(response => {
-          if (!response.ok) {
-              throw new Error('Network response was not ok from generation endpoint');
-          }
-          return response.json();
+        if (!response.ok) {
+          throw new Error('Network response was not ok from classify_text endpoint');
+        }
+        return response.json();
       })
-      .then(data => {
-          handleData(data);
-          // If generation is successful, save the data
-          return fetch("/save_page_content", {
+      .then(classifyData => {
+        const { generate_target, outText } = classifyData;
+
+        // Call all the endpoints simultaneously
+        const gptCoherePromise = fetch("/generate_gpt_cohere", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            generate_target: generate_target,
+            job_title: jobTitle,
+            text: editorContent,
+            comp_info: "",
+            outtext: outText
+          })
+        });
+
+        const llmPromise = fetch("/generate_llm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: editorContent })
+        });
+
+        const vectorDbPromise = fetch("/generate_vector_db", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            generate_target: generate_target,
+            job_title: jobTitle,
+            comp_name: "",
+            comp_info: ""
+          })
+        });
+
+        return Promise.all([gptCoherePromise, llmPromise, vectorDbPromise])
+          .then(async ([gptCohereResponse, llmResponse, vectorDbResponse]) => {
+            // Handle each response as it comes in
+            const gptCohereData = await gptCohereResponse.json();
+            handleData(gptCohereData);
+
+            const llmData = await llmResponse.json();
+            handleData(llmData);
+
+            const vectorDbData = await vectorDbResponse.json();
+            handleData(vectorDbData);
+
+            // Save the content after all promises are resolved
+            return fetch("/save_page_content", {
               method: "POST",
-              headers: {"Content-Type": "application/json"},
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                  job_title: jobTitle,
-                  text: editorContent,
-                  result: JSON.stringify(data) // Assuming you want to store the response as 'result'
+                job_title: jobTitle,
+                text: editorContent,
+                result: JSON.stringify({
+                  ...classifyData,
+                  ...gptCohereData,
+                  ...llmData,
+                  ...vectorDbData
+                })
               })
+            });
           });
       })
       .then(response => {
-          if (!response.ok) {
-              throw new Error('Network response was not ok from save content endpoint');
-          }
-          return response.json();
+        if (!response.ok) {
+          throw new Error('Network response was not ok from save_page_content endpoint');
+        }
+        return response.json();
       })
       .then(saveResponse => {
-          console.log('Content saved successfully');
+        console.log('Content saved successfully');
       })
       .catch(error => {
-          handleError(error);
+        handleError(error);
       })
       .finally(() => {
-          submitButton.classList.remove("loading");
-          buttonText.style.display = "block";
-          spinner.style.display = "none";
+        submitButton.classList.remove("loading");
+        buttonText.style.display = "block";
+        spinner.style.display = "none";
       });
   });
-  function handleData(data) {
-      var resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = ""; // Clear previous results
 
-      // Check if data is an object and not null
-      if (typeof data === 'object' && data !== null) {
-          // Iterate over each key in the object
-          for (const key in data) {
-              if (data.hasOwnProperty(key)) {
-                  const value = data[key];
-                  // Check if the value is not 'NULL' to append it to the results
-                  if (value !== 'NULL') {
-                      const newResult = document.createElement("div");
-                      newResult.className = "result";
-                      newResult.innerHTML = `<button class="select-result-button expandable-button">
+  function handleData(data) {
+    var resultDiv = document.getElementById("result");
+    // Check if data is an object and not null
+    if (typeof data === 'object' && data !== null) {
+      // Iterate over each key in the object
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          const value = data[key];
+          // Check if the value is not 'NULL' to append it to the results
+          if (value !== 'NULL') {
+            const newResult = document.createElement("div");
+            newResult.className = "result";
+            newResult.innerHTML = `<button class="select-result-button expandable-button">
                                               ${key}: ${value}
                                             </button>`;
-                      resultDiv.appendChild(newResult);
-                  }
-              }
+            resultDiv.appendChild(newResult);
           }
-          // Attach click event listeners to all result buttons after they are added
-          document.querySelectorAll(".select-result-button").forEach(button => {
-              button.addEventListener("click", function() {
-                  var textToCopy = this.getAttribute("title"); 
-                  tinymce.get("mce_full").execCommand('mceInsertContent', false, textToCopy); 
-              });
-          });
-      } else {
-          // Log unexpected data formats for further investigation
-          console.error("Unexpected data format received:", data);
-          resultDiv.innerHTML = "Received data in an unexpected format.";
+        }
       }
+      // Attach click event listeners to all result buttons after they are added
+      document.querySelectorAll(".select-result-button").forEach(button => {
+        button.addEventListener("click", function () {
+          var textToCopy = this.getAttribute("title");
+          tinymce.get("mce_full").execCommand('mceInsertContent', false, textToCopy);
+        });
+      });
+    } else {
+      // Log unexpected data formats for further investigation
+      console.error("Unexpected data format received:", data);
+      resultDiv.innerHTML = "Received data in an unexpected format.";
+    }
   }
 
   function handleError(error) {
@@ -201,9 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("DOMContentLoaded", headerColor);
 });
 </script>
-
 </head>
-
 <body>
   <header class="header">
     <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
@@ -219,22 +264,21 @@ document.addEventListener("DOMContentLoaded", function () {
         <form action="/logout" method="post">
           <button type="submit" class="logout">Logout</button>
         </form>
-
       </div>
     </div>
   </header>
   <div class="main-content">
     <section class="your-work">
       <h2 class="statement-title">자소서</h2>
-      <form action="/generation" method="post">
+      <form action="/classify_text" method="post">
         <div class="input-group">
           <label for="job_title">지원직무</label>
-          <input type="text" name="job_title" id="job_title" placeholder="지원 직무에 대해 입력해주세요." maxlength="20" required>
+          <input type="text" id="job_title" placeholder="지원 직무에 대해 입력해주세요." maxlength="20" required>
           <span id="job_title-count">0/20</span>
         </div>
         <div class="input-group">
           <label for="text">자기소개서 본문</label>
-          <textarea name="text" id="mce_full" placeholder="자기소개서 본문을 입력해주세요." maxlength="2000"></textarea>
+          <textarea id="mce_full" placeholder="자기소개서 본문을 입력해주세요." maxlength="2000"></textarea>
           <div id="mce_full-count">0 자, 0 단어</div>
         </div>
         <button type="submit" class="submit-ps">
@@ -250,5 +294,4 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
   <div id="autoSaveNotification">Not saved yet</div>
 </body>
-
 </html>
