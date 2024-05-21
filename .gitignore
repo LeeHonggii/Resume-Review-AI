@@ -164,3 +164,7 @@ node_modules/
 
 # model files
 App/initdata/kc_bert_emotion_classifier.pth
+
+
+# vdb 
+App/initdata/vdb
