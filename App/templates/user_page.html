@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,117 +11,140 @@
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
   <title>Main Page</title>
-  <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-    <script>
-document.addEventListener("DOMContentLoaded", function () {
-  tinymce.init({
-    selector: "#mce_full",
-    resize: false,
-    menubar: false,
-    toolbar: [
-      { name: 'history', items: ['undo', 'redo'] },
-      { name: 'styles', items: ['styles'] },
-      { name: 'formatting', items: ['bold', 'italic'] },
-      { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
-      { name: 'backcolor', items: ['backcolor']},
-      { name: 'file', items: ['print']}
-    ],
-    setup: function (editor) {
-      editor.on("init", function () {
-        enforceMaxLength(editor);
-        updateCount(editor);
+  <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js"
+    referrerpolicy="origin"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      tinymce.init({
+        selector: "#mce_full",
+        resize: false,
+        menubar: false,
+        toolbar: [
+          { name: 'history', items: ['undo', 'redo'] },
+          { name: 'styles', items: ['styles'] },
+          { name: 'formatting', items: ['bold', 'italic'] },
+          { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
+          { name: 'backcolor', items: ['backcolor'] },
+          { name: 'file', items: ['print'] }
+        ],
+        setup: function (editor) {
+          editor.on("init", function () {
+            enforceMaxLength(editor);
+            updateCount(editor);
+          });
+          editor.on("input", function () {
+            updateCount(editor);
+            enforceMaxLength(editor);
+          });
+          editor.on("change", function () {
+            updateCount(editor);
+            enforceMaxLength(editor);
+            synchronizeTextarea(editor);
+          });
+        },
       });
-      editor.on("input", function () {
-        updateCount(editor);
-        enforceMaxLength(editor);
-      });
-      editor.on("change", function () {
-        updateCount(editor);
-        enforceMaxLength(editor);
-        synchronizeTextarea(editor);
-      });
-    },
-  });
 
-  function updateCount(editor) {
-    var content = editor.getContent({ format: "text" });
-    var charCount = content.length;
-    var wordCount = content.split(/\s+/).filter((n) => n != "").length;
-    var countElement = document.getElementById("mce_full-count");
-    if (countElement) {
-      countElement.innerText = `${charCount} characters, ${wordCount} words`;
-    }
-  }
-
-  function enforceMaxLength(editor) {
-    var content = editor.getContent({ format: "text" });
-    if (content.length > 2000) {
-      editor.setContent(content.substr(0, 2000));
-      showNotification("Word count exceeds 2000 characters!", 5000);
-    }
-  }
-
-  function showNotification(message, duration) {
-    var notificationElement = document.getElementById("autoSaveNotification");
-    if (notificationElement) {
-      notificationElement.innerText = message;
-      notificationElement.style.display = "block";
-      setTimeout(() => {
-        notificationElement.style.display = "none";
-      }, duration);
-    }
-  }
-
-  function synchronizeTextarea(editor) {
-    document.getElementById("mce_full").value = editor.getContent({ format: "text" });
-  }
-
-  document.querySelectorAll('input[type="text"], textarea:not(#mce_full)').forEach((input) => {
-    input.addEventListener("input", function () {
-      var count = this.value.length;
-      var max = this.getAttribute("maxlength");
-      var countId = this.id + "-count";
-      var countElement = document.getElementById(countId);
-
-      if (countElement) {
-        countElement.innerText = `${count}/${max}`;
+      function updateCount(editor) {
+        var content = editor.getContent({ format: "text" });
+        var charCount = content.length;
+        var wordCount = content.split(/\s+/).filter((n) => n != "").length;
+        var countElement = document.getElementById("mce_full-count");
+        if (countElement) {
+          countElement.innerText = `${charCount} characters, ${wordCount} words`;
+        }
       }
-    });
-  });
 
-  const form = document.querySelector('form[action="/classify_text"]');
-  const submitButton = document.querySelector(".submit-ps");
-  const buttonText = submitButton.querySelector(".button-text");
-  const spinner = submitButton.querySelector(".spinner");
-  const resultDiv = document.getElementById("result");
+      function enforceMaxLength(editor) {
+        var content = editor.getContent({ format: "text" });
+        if (content.length > 2000) {
+          editor.setContent(content.substr(0, 2000));
+          showNotification("Word count exceeds 2000 characters!", 5000);
+        }
+      }
 
-  form.addEventListener("submit", async function (event) {
-    event.preventDefault();
-    synchronizeTextarea(tinymce.get("mce_full"));
-    var editorContent = tinymce.get("mce_full").getContent();
-    if (editorContent.length > 2000) {
-      alert("Text exceeds the maximum allowed length of 2000 characters.");
-      return false;
-    }
-    var jobTitle = document.getElementById("job_title").value;
+      function showNotification(message, duration) {
+        var notificationElement = document.getElementById("autoSaveNotification");
+        if (notificationElement) {
+          notificationElement.innerText = message;
+          notificationElement.style.display = "block";
+          setTimeout(() => {
+            notificationElement.style.display = "none";
+          }, duration);
+        }
+      }
 
-    submitButton.classList.add("loading");
-    buttonText.style.display = "none";
-    spinner.style.display = "block";
+      function synchronizeTextarea(editor) {
+        document.getElementById("mce_full").value = editor.getContent({ format: "text" });
+      }
 
-      const classificationResponse = await fetch("/classify_text", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: editorContent, job_title: jobTitle }),
-        
+      document.querySelectorAll('input[type="text"], textarea:not(#mce_full)').forEach((input) => {
+        input.addEventListener("input", function () {
+          var count = this.value.length;
+          var max = this.getAttribute("maxlength");
+          var countId = this.id + "-count";
+          var countElement = document.getElementById(countId);
+
+          if (countElement) {
+            countElement.innerText = `${count}/${max}`;
+          }
+        });
       });
 
-      if (!classificationResponse.ok) throw new Error('Network response was not ok from classify_text endpoint');
-      const classifyData = await classificationResponse.json();
-      handleData(classifyData);
+      const form = document.querySelector('form[action="/classify_text"]');
+      const submitButton = document.querySelector(".submit-ps");
+      const buttonText = submitButton.querySelector(".button-text");
+      const spinner = submitButton.querySelector(".spinner");
+      const resultDiv = document.getElementById("result");
 
-      // Start all asynchronous operations
-      const asyncOps = [
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        synchronizeTextarea(tinymce.get("mce_full"));
+        var editorContent = tinymce.get("mce_full").getContent();
+        if (editorContent.length > 2000) {
+          alert("Text exceeds the maximum allowed length of 2000 characters.");
+          return false;
+        }
+        var jobTitle = document.getElementById("job_title").value;
+
+        submitButton.classList.add("loading");
+        buttonText.style.display = "none";
+        spinner.style.display = "block";
+
+        const classificationResponse = await fetch("/classify_text", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: editorContent, job_title: jobTitle }),
+        });
+
+        if (!classificationResponse.ok) {
+          handleError(new Error('Network response was not ok from classify_text endpoint'));
+          submitButton.disabled = false;
+          buttonText.style.display = "block";
+          spinner.style.display = "none";
+          return;
+        }
+        const classifyData = await classificationResponse.json();
+
+        handleData(classifyData);
+
+        // Individual asynchronous operations
+        fetch("/generate_vector_db", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            generate_target: classifyData.generate_target,
+            job_title: jobTitle,
+            comp_name: "",
+            comp_info: ""
+          })
+        }).then(response => response.ok ? response.json().then(data => handleData(data)) : handleError(new Error("Failed to fetch vector db data")));
+
+        fetch("/generate_llm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: editorContent })
+        }).then(response => response.ok ? response.json().then(data => handleData(data)) : handleError(new Error("Failed to fetch llm data")));
+
         fetch("/generate_gpt_cohere", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -132,91 +156,52 @@ document.addEventListener("DOMContentLoaded", function () {
             comp_info: classifyData.comp_info,
             outText: classifyData.outText
           })
-        }),
-        fetch("/generate_llm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: editorContent })
-        }),
-        fetch("/generate_vector_db", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            generate_target: classifyData.generate_target,
-            job_title: jobTitle,
-            comp_name: "",
-            comp_info: ""
-          })
-        })
-      ];
+        }).then(response => response.ok ? response.json().then(data => handleData(data)) : handleError(new Error("Failed to fetch cohere data")));
 
-
-    try {
-      const responses = await Promise.allSettled(asyncOps);
-      responses.forEach((response) => {
-        if (response.status === "fulfilled" && response.value.ok) {
-          response.value.json().then(data => handleData(data));
-        } else if (response.status === "rejected" || !response.value.ok) {
-          handleError(response.reason || new Error("Failed to fetch"));
-        }
       });
-    } catch (error) {
-      handleError(error);
-    } finally {
-      submitButton.disabled = false;
-      buttonText.style.display = "block";
-      spinner.style.display = "none";
-    }
-  });
 
-  function handleData(data) {
-    // Check if data is an object and not null
-    if (typeof data === 'object' && data !== null) {
-      // Iterate over each key in the object
-      for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-          const value = data[key];
-          // Check if the value is not 'NULL' to append it to the results
-          if (value !== 'NULL') {
-            const newResult = document.createElement("div");
-            newResult.className = "result";
-            newResult.innerHTML = `<button class="select-result-button expandable-button">
-                                      ${key}: ${value}
-                                    </button>`;
-            resultDiv.appendChild(newResult);
+      function handleData(data) {
+        if (typeof data === 'object' && data !== null) {
+          for (const key in data) {
+            if (data.hasOwnProperty(key) && key !== 'generate_target' && key !== 'outText') {
+              const value = data[key];
+              if (value !== 'NULL') {
+                const newResult = document.createElement("div");
+                newResult.className = "result";
+                newResult.innerHTML = `<button class="select-result-button expandable-button" data-value="${value}">
+                                ${key}: ${value}
+                              </button>`;
+                resultDiv.appendChild(newResult);
+                newResult.firstChild.addEventListener('click', function () {
+                  const textToCopy = this.getAttribute('data-value');
+                  tinymce.get("mce_full").execCommand('mceInsertContent', false, textToCopy);
+                });
+              }
+            }
           }
+        } else {
+          console.error("Unexpected data format received:", data);
+          resultDiv.innerHTML = "Received data in an unexpected format.";
         }
       }
-      // Attach click event listeners to all result buttons after they are added
-      document.querySelectorAll(".select-result-button").forEach(button => {
-        button.addEventListener("click", function () {
-          var textToCopy = this.getAttribute("title");
-          tinymce.get("mce_full").execCommand('mceInsertContent', false, textToCopy);
-        });
-      });
-    } else {
-      // Log unexpected data formats for further investigation
-      console.error("Unexpected data format received:", data);
-      resultDiv.innerHTML = "Received data in an unexpected format.";
-    }
-  }
 
-  function handleError(error) {
-    console.error("Error:", error);
-    document.getElementById("result").innerHTML = "Error fetching results: " + error.message;
-  }
+      function handleError(error) {
+        console.error("Error:", error);
+        document.getElementById("result").innerHTML = "Error fetching results: " + error.message;
+      }
 
-  function headerColor() {
-    const navbar = document.querySelector('.header');
-    const loginButton = document.querySelector('.dropbtn');
-    loginButton.addEventListener('mouseover', () => navbar.classList.add("navigation-blue"));
-    loginButton.addEventListener('mouseout', () => navbar.classList.remove("navigation-blue"));
-  }
+      function headerColor() {
+        const navbar = document.querySelector('.header');
+        const loginButton = document.querySelector('.dropbtn');
+        loginButton.addEventListener('mouseover', () => navbar.classList.add("navigation-blue"));
+        loginButton.addEventListener('mouseout', () => navbar.classList.remove("navigation-blue"));
+      }
 
-  document.addEventListener("DOMContentLoaded", headerColor);
-});
-</script>
+      document.addEventListener("DOMContentLoaded", headerColor);
+    });
+  </script>
 </head>
+
 <body>
   <header class="header">
     <div class="logo"><a href="/" class="title-logo">ME:VISE</a></div>
@@ -262,4 +247,5 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
   <div id="autoSaveNotification">Not saved yet</div>
 </body>
+
 </html>

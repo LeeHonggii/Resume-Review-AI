@@ -604,10 +604,10 @@ async def generate_gpt_cohere_api(data: dict):
     print("text:", text)
 
     gpt_response = await gpt_generation(
-        generate_target, job_title, text, comp_info, outText, class_result
+        generate_target, job_title, text, comp_info, outText
     )
     cohere_response = await cohere_generation(
-        generate_target, job_title, text, comp_info, outText, class_result
+        generate_target, job_title, text, comp_info
     )
     return JSONResponse(
         content={"gpt_response": gpt_response, "cohere_response": cohere_response}
@@ -638,4 +638,4 @@ async def generate_vector_db_api(data: dict):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8888, log_level="debug")
+    uvicorn.run("main:app", host="127.0.0.1", port=8888, log_level="debug", reload=True)
