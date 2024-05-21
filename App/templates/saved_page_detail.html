@@ -10,7 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <title>HistoryContent</title>
-    <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/q3yh37zdrlfps0jr29akz27kz24r7gpmjlh551cfpo9ai737/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             tinymce.init({
@@ -18,12 +19,12 @@
                 resize: false,
                 menubar: false,
                 toolbar: [
-                { name: 'history', items: ['undo', 'redo'] },
-                { name: 'styles', items: ['styles'] },
-                { name: 'formatting', items: ['bold', 'italic'] },
-                { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
-                { name: 'backcolor', items: ['backcolor']},
-                { name: 'file', items: ['print']}
+                    { name: 'history', items: ['undo', 'redo'] },
+                    { name: 'styles', items: ['styles'] },
+                    { name: 'formatting', items: ['bold', 'italic'] },
+                    { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
+                    { name: 'backcolor', items: ['backcolor'] },
+                    { name: 'file', items: ['print'] }
                 ],
                 setup: function (editor) {
                     editor.on("init", function () {
@@ -107,10 +108,80 @@
         <section class="feedback">
             <h2 class="feedback-title">피드백</h2>
             <div id="saved-page-result">
-                {{ saved_page.result }}
             </div>
         </section>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var savedPageResult = document.getElementById('saved-page-result');
+            var resultData = {{ saved_page.result | tojson | safe
+        }}; // Ensure JSON is safely encoded
+
+        console.log("Raw JSON Data:", resultData); // Log raw JSON data for debugging
+
+        // Parse the JSON string to a JavaScript object
+        function parseJSON(json) {
+            try {
+                return JSON.parse(json);
+            } catch (e) {
+                console.error("Error parsing JSON:", e);
+                return null;
+            }
+        }
+
+        // Function to display results from the parsed JSON object
+        function displayResults(resultsObj, container) {
+            container.innerHTML = ''; // Clear the container first
+            if (!resultsObj || typeof resultsObj !== 'object') {
+                container.innerText = "No valid data to display.";
+                return;
+            }
+            // Loop through each key in the results object
+            Object.keys(resultsObj).forEach(key => {
+                const innerObj = resultsObj[key];
+                if (typeof innerObj === 'object') {
+                    Object.keys(innerObj).forEach(subKey => {
+                        const value = innerObj[subKey];
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'result-item';
+                        // Create a button for each key-value pair
+                        const button = document.createElement('button');
+                        button.className = 'select-result-button expandable-button';
+                        button.innerHTML = `<strong>${subKey}</strong>`;
+                        // Create a div to hold the value, which will be hidden initially
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'result-content';
+                        contentDiv.style.display = 'none';
+                        contentDiv.textContent = value;
+                        // Append button and content div to the itemDiv
+                        itemDiv.appendChild(button);
+                        itemDiv.appendChild(contentDiv);
+                        // Add click event listener to the button
+                        button.addEventListener('click', function () {
+                            this.classList.toggle('active');
+                            var content = this.nextElementSibling;
+                            if (content.style.display === 'block') {
+                                content.style.display = 'none';
+                            } else {
+                                content.style.display = 'block';
+                            }
+                        });
+                        // Append itemDiv to the container
+                        container.appendChild(itemDiv);
+                    });
+                }
+            });
+        }
+
+        const jsonData = parseJSON(resultData);
+        if (jsonData) {
+            displayResults(jsonData, savedPageResult);
+        } else {
+            savedPageResult.innerText = "Error displaying results: Invalid JSON data. See console for details.";
+        }
+        });
+    </script>
 
 </body>
 

@@ -484,6 +484,9 @@ async def saved_page_detail(
     if not saved_page:
         raise HTTPException(status_code=404, detail="Saved page not found")
 
+    # Log the content to make sure it's retrieved correctly
+    logger.debug(f"Retrieved content: {saved_page.text}, Result: {saved_page.result}")
+
     return templates.TemplateResponse(
         "saved_page_detail.html", {"request": request, "saved_page": saved_page}
     )
@@ -628,8 +631,8 @@ async def generate_vector_db_api(data: dict):
     comp_name = data.get("comp_name")
     comp_info = data.get("comp_info")
 
-    vdb_prompt = vector_db.vdb_prompt(generate_target, job_title, comp_name, comp_info)
-    vdb_result = vector_db.query(vdb_prompt)
+    vdb_prompt = await vector_db.vdb_prompt(generate_target, job_title, comp_name, comp_info)
+    vdb_result = await vector_db.query(vdb_prompt)
     if len(vdb_result) > 0:
         vdb_reponse = vdb_result[0]
     else:

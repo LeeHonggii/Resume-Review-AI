@@ -88,7 +88,7 @@ class VectorDB:
         self.metadatas = []
         self.embeddings = []
 
-    def query(self, prompt, max_results=3):
+    async def query(self, prompt, max_results=3):
         result = self.collection.query(
             query_embeddings=self.bert_model.encode(prompt, normalize_embeddings=True).tolist(),
             n_results=max_results
@@ -146,7 +146,7 @@ class VectorDB:
             self.flush()
             # print("vector DB flushing")
 
-    def vdb_prompt(self, generate_target, job_title, comp_name, comp_info):
+    async def vdb_prompt(self, generate_target, job_title, comp_name, comp_info):
         job_title = job_title.replace(comp_name, "")
 
         return (generate_target + ". " + job_title + ". " + comp_info).strip()

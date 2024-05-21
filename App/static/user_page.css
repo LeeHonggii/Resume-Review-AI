@@ -259,6 +259,9 @@ textarea#mce_full {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border-style: none;
+  background-color: #f4f4f4;
+  border-radius: 15px;
 }
 
 .expandable-button {
