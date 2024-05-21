@@ -172,7 +172,7 @@ def classify_text(text):
 
     if class_count[0] != 0:  # negative sentence
         negative_values = [outList[i] for i in range(len(predict)) if np.argmax(predict[i]) == 0]
-        negative_result = {', '.join(negative_values)}
+        negative_result = ', '.join(negative_values)
     else:
         negative_result = "None"
 
@@ -509,10 +509,6 @@ async def chat_analysis(request: Request):
     data = await request.json()
     job_title = data.get("job_title")
     #text = data.get("text")
-
-    text = '''대표적인 예로 저는 2022년 Global AI Finace Conference에 참석하여 여러 국가의 친구들과 소통하고 친해진 경험이 있습니다. 언어적으로 불리했음에도 불구하고 넉살스러운 표정과 유머를 통해 주변을 웃음 짓게 했습니다. 이러한 해피바이러스로 인해 학회는 잘 마무리되었고, 현재도 서로 연락하며 끈끈한 유대감을 가지고 있습니다.
-
-    이러한 저의 강점을 바탕으로 고객에게 미소와 웃음을 드리며, 보다 밝고 희망찬 금융 환경을 조성하는 데 동참하겠습니다. 밝은 분위기에서 고객사의 목표에 맞게 세부적인 금융 계획을 수립하여 신뢰 관계를 구축하는 키움 증권의 인재가 되겠습니다.'''
 
     # classification input text
     generate_target, negative_result, outClass, outList, outText = classify_text(text)
