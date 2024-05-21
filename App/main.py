@@ -153,7 +153,7 @@ async def llm_generation(text: str) -> str:
         return f"서버 오류 발생: {str(e)}"
 
 
-def classify_text(text):
+def classify_text(text, job_title):
     classifier.load_model()
     class_count = [0, 0, 0]
     outClass = []
@@ -194,8 +194,8 @@ def classify_text(text):
         generate_target += "입사 동기 및 포부"
         # print("입사 동기 및 포부 missing.")
         print("generate_target:", generate_target)
-
-    return generate_target, negative_result, outClass, outList, outText
+    comp_name, comp_info = company_info.get_company_info(job_title)
+    return generate_target, negative_result, outClass, outList, outText, comp_info
 
 
 # LSTM으로 작동하는법
@@ -530,15 +530,19 @@ async def save_page_content(
 @app.post("/classify_text")
 async def classify_text_api(data: dict):
     text = data.get("text")
-    generate_target, negative_result, outClass, outList, outText = classify_text(text)
+    job_title = data.get("job_title")
+    print(job_title)
+    generate_target, negative_result, outClass, outList, outText, comp_info = (
+        classify_text(text, job_title)
+    )
+    print(comp_info)
     outClass = [int(x) for x in outClass]
     outList = [str(x) for x in outList]
     return JSONResponse(
         content={
             "generate_target": generate_target,
+            "company_info": comp_info,
             "negative_result": negative_result,
-            "outClass": outClass,
-            "outList": outList,
             "outText": outText,
         }
     )
@@ -550,14 +554,14 @@ async def generate_gpt_cohere_api(data: dict):
     job_title = data.get("job_title")
     text = data.get("text")
     comp_info = data.get("comp_info")
-    outtext = data.get("outtext")
+    outText = data.get("outText")
 
     print("generate_target:", generate_target)
     print("job_title:", job_title)
     print("text:", text)
 
     gpt_response = await gpt_generation(
-        generate_target, job_title, text, comp_info, outtext
+        generate_target, job_title, text, comp_info, outText
     )
     cohere_response = await cohere_generation(
         generate_target, job_title, text, comp_info

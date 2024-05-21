@@ -108,11 +108,11 @@ document.addEventListener("DOMContentLoaded", function () {
     buttonText.style.display = "none";
     spinner.style.display = "block";
 
-    try {
       const classificationResponse = await fetch("/classify_text", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: editorContent })
+        body: JSON.stringify({ text: editorContent, job_title: jobTitle }),
+        
       });
 
       if (!classificationResponse.ok) throw new Error('Network response was not ok from classify_text endpoint');
@@ -149,18 +149,20 @@ document.addEventListener("DOMContentLoaded", function () {
         })
       ];
 
-      // Process responses as they arrive
-      for await (const response of asyncOps.map(op => op.then(r => r.json()))) {
-        handleData(response);
-      }
 
-      // Optionally, save the page content after all promises are resolved
-      // (omitted for brevity)
-
+    try {
+      const responses = await Promise.allSettled(asyncOps);
+      responses.forEach((response) => {
+        if (response.status === "fulfilled" && response.value.ok) {
+          response.value.json().then(data => handleData(data));
+        } else if (response.status === "rejected" || !response.value.ok) {
+          handleError(response.reason || new Error("Failed to fetch"));
+        }
+      });
     } catch (error) {
       handleError(error);
     } finally {
-      submitButton.classList.remove("loading");
+      submitButton.disabled = false;
       buttonText.style.display = "block";
       spinner.style.display = "none";
     }
