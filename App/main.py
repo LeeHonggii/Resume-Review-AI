@@ -22,12 +22,14 @@ from openai import OpenAI
 # classification model setup
 import numpy as np
 from classification import Classfication_model
+from KcElectraClassifier import KcElectraClassifierModel
 from company_info import  Company_info
 from vectorDB import VectorDB
 import os
 
 
-classifier = Classfication_model()
+#classifier = Classfication_model()
+classifier = KcElectraClassifierModel()
 company_info = Company_info()
 vector_db = VectorDB()
 
@@ -43,20 +45,29 @@ openai_client = OpenAI(api_key = OPENAI_API_KEY)
 co = cohere.Client(api_key=COHERE_API_KEY)
 API_URL = os.getenv("API_URL")
 
-async def gpt_generation(generate_target:str, job_title: str, text: str, comp_info : str) -> str:
+async def gpt_generation(generate_target:str, job_title: str, text: str, comp_info : str, outtext : str) -> str:
     if comp_info != "":
         comp_prompt = f"지원하려는 회사의 인재상은 {comp_info}. 너무 직접적인 표현은 좋지 않아."
+    else:
+        comp_prompt = "가진 인재상 정보는 없어."
 
-    prompt = (
-        f"1.자기소개서를 작성하려고 해. 지원하는 직무 정보는 {job_title}.{comp_prompt}\n"
-        f"2. {generate_target}에 해당하는 내용을 5문장 이내로 제안해줘.\n"
-        f"3. 이건 내가 적은 자기소개서야 {text}"
-        f"4. 빈줄없이 출력해줘\n"
-        f"5. 다른 설명 없이 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘."
+    prompt1 = (
+        f"내가 작성한 자기소개서을 보내줄게 감정대로 분류해서 보내줘 그럼 내가 다음 요구사항 보내줄게 형식은 문장 - 분류값 이야 // {text}"
     )
+    prompt2 = (
+        f"잘봤어 그러면 다음 규칙에 맞게 수정사항만 빈줄없이 보내줘"
+        f"1.해당 자소서의 직무정보는 {job_title} 이고 {comp_prompt}\n"
+        f"2. {generate_target}에 해당하는 내용을 5문장 이내로 제안해줘.\n"
+        f"3. 다른 설명 없이 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘."
+    )
+    messages = [
+        {"role": "user", "content": prompt1},
+        {"role": "user", "content": outtext},
+        {"role": "user", "content": prompt2}
+    ]
     try:
         chat_completion = openai_client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}], model="gpt-4o"
+            messages=messages, model="gpt-4o"
         )
         return chat_completion.choices[0].message.content
     except Exception as e:
@@ -133,11 +144,15 @@ async def llm_generation(text: str) -> str:
         logger.error(f"LLM 응답 처리 중 오류 발생: {str(e)}")
         return f"서버 오류 발생: {str(e)}"
 
+
+#kcElectraClassifier사용
 def classify_text(text):
+    classifier.load_model()
     class_count = [0, 0, 0]
     outClass = []
     negative_result = ""
     generate_target = ""
+    outText = []
 
     predict, outList = classifier.classify(text)
     np.set_printoptions(suppress=True, precision=2)
@@ -146,26 +161,67 @@ def classify_text(text):
         c = np.argmax(predict[i])
         class_count[c] += 1
         outClass.append(c)
-        print(predict[i], classifier.class_name[np.argmax(predict[i])], outList[i])
+        outText.append(f"{outList[i]} - {classifier.class_name[c]}")
+        #print(predict[i], classifier.class_name[c], outList[i])
 
-    print("class_count:", class_count)
-    print(outClass)
-    print(outList)
+    outText = " ".join(outText)
+    #print("class_count:", class_count)
+    #print(outClass)
+    #print(outList)
+    print("outText : ", outText)
 
     if class_count[0] != 0:  # negative sentence
-        negative_result = f"Negative Sentence Count: {class_count[0]}"
+        negative_values = [outList[i] for i in range(len(predict)) if np.argmax(predict[i]) == 0]
+        negative_result = {', '.join(negative_values)}
     else:
         negative_result = "None"
 
     if class_count[1] != 0:
         generate_target = '성공 경험'
-        print("성공 경험 missing.")
+        #print("성공 경험 missing.")
     if class_count[2] != 0:
+        if generate_target:
+            generate_target += ', '
         generate_target += '입사 동기 및 포부'
-        print("입사 동기 및 포부 missing.")
+        #print("입사 동기 및 포부 missing.")
         print("generate_target:", generate_target)
 
-    return generate_target, negative_result, outClass, outList
+    return generate_target, negative_result, outClass, outList, outText
+
+#LSTM으로 작동하는법
+# def classify_text(text):
+#     class_count = [0, 0, 0]
+#     outClass = []
+#     negative_result = ""
+#     generate_target = ""
+#
+#     predict, outList = classifier.classify(text)
+#     np.set_printoptions(suppress=True, precision=2)
+#
+#     for i in range(len(predict)):
+#         c = np.argmax(predict[i])
+#         class_count[c] += 1
+#         outClass.append(c)
+#         print(predict[i], classifier.class_name[np.argmax(predict[i])], outList[i])
+#
+#     print("class_count:", class_count)
+#     print(outClass)
+#     print(outList)
+#
+#     if class_count[0] != 0:  # negative sentence
+#         negative_result = f"Negative Sentence Count: {class_count[0]}"
+#     else:
+#         negative_result = "None"
+#
+#     if class_count[1] != 0:
+#         generate_target = '성공 경험'
+#         print("성공 경험 missing.")
+#     if class_count[2] != 0:
+#         generate_target += '입사 동기 및 포부'
+#         print("입사 동기 및 포부 missing.")
+#         print("generate_target:", generate_target)
+#
+#     return generate_target, negative_result, outClass, outList
 
 
 app = FastAPI()
@@ -452,10 +508,14 @@ async def save_page_content(request: Request, session: AsyncSession = Depends(ge
 async def chat_analysis(request: Request):
     data = await request.json()
     job_title = data.get("job_title")
-    text = data.get("text")
+    #text = data.get("text")
+
+    text = '''대표적인 예로 저는 2022년 Global AI Finace Conference에 참석하여 여러 국가의 친구들과 소통하고 친해진 경험이 있습니다. 언어적으로 불리했음에도 불구하고 넉살스러운 표정과 유머를 통해 주변을 웃음 짓게 했습니다. 이러한 해피바이러스로 인해 학회는 잘 마무리되었고, 현재도 서로 연락하며 끈끈한 유대감을 가지고 있습니다.
+
+    이러한 저의 강점을 바탕으로 고객에게 미소와 웃음을 드리며, 보다 밝고 희망찬 금융 환경을 조성하는 데 동참하겠습니다. 밝은 분위기에서 고객사의 목표에 맞게 세부적인 금융 계획을 수립하여 신뢰 관계를 구축하는 키움 증권의 인재가 되겠습니다.'''
 
     # classification input text
-    generate_target, negative_result, outClass, outList = classify_text(text)
+    generate_target, negative_result, outClass, outList, outText = classify_text(text)
 
     # Get company details
     comp_name, comp_info = company_info.get_company_info(job_title)
@@ -470,7 +530,7 @@ async def chat_analysis(request: Request):
     print(f"({vdb_prompt}) -> {vdb_reponse}")
 
     # Generate responses from different models
-    gpt_response = await gpt_generation(generate_target, job_title, text, comp_info) or "실패"
+    gpt_response = await gpt_generation(generate_target, job_title, text, comp_info,outText) or "실패"
     vector_db.add(vdb_prompt, gpt_response, True)
     # if gpt_response is valid:
     #     vector_db.add(vdb_prompt, gpt_response)
