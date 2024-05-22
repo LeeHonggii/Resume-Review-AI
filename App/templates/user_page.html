@@ -202,15 +202,26 @@
       }
 
       function handleData(data) {
+        const keyTranslations = {
+          "comp_info": "회사의 인재상",
+          "negative_result": "부정적인 표현",
+          "class_result": "분류 결과",
+          "vdb_response": "Vector DB 결과",
+          "llm_response": "ME:VISE 결과",
+          "gpt_response": "GPT 결과",
+          "cohere_response": "cohere 결과"
+        };
+
         if (typeof data === 'object' && data !== null) {
           for (const key in data) {
+            const displayKey = keyTranslations[key] || key; // Translate key or use original
             if (data.hasOwnProperty(key) && key !== 'generate_target' && key !== 'outText' && key !== 'comp_name') {
               const value = data[key];
               if (value !== 'NULL') {
                 const newResult = document.createElement("div");
                 newResult.className = "result";
                 newResult.innerHTML = `<button class="select-result-button expandable-button" data-value="${value}">
-                                      ${key}: ${value}
+                                      ${displayKey}: ${value}
                                     </button>`;
                 resultDiv.appendChild(newResult);
                 newResult.firstChild.addEventListener('click', function () {
@@ -224,7 +235,6 @@
           console.error("Unexpected data format received:", data);
           resultDiv.innerHTML = "Received data in an unexpected format.";
         }
-
       }
 
       function handleError(error) {
