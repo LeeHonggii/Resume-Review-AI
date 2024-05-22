@@ -49,20 +49,14 @@ API_URL = os.getenv("API_URL")
 
 
 async def gpt_generation(
-    generate_target: str, job_title: str, text: str, comp_info: str, outText: str
+    job_title: str, text: str, comp_info: str, outText: str, class_result : str
 ) -> str:
-    if comp_info != "":
-        comp_prompt = (
-            f"지원하려는 회사의 인재상은 {comp_info}. 너무 직접적인 표현은 좋지 않아."
-        )
-    else:
-        comp_prompt = "가진 인재상 정보는 없어."
 
     prompt1 = f"내가 작성한 자기소개서을 보내줄게 감정대로 분류해서 보내줘 그럼 내가 다음 요구사항 보내줄게 형식은 문장 - 분류값 이야 // {text}"
     prompt2 = (
         f"잘봤어 그러면 다음 규칙에 맞게 수정사항만 빈줄없이 보내줘"
-        f"1.해당 자소서의 직무정보는 {job_title} 이고 {comp_prompt}\n"
-        f"2. {generate_target}에 해당하는 내용을 5문장 이내로 제안해줘.\n"
+        f"1.해당 자소서의 직무정보는 {job_title} 이고 {comp_info}\n"
+        f"2. {class_result}랑 앞서 보여준 문장 분류 보고 없는 내용을 흐름에 맞게 5문장 이내로 제안해줘.\n"
         f"3. 다른 설명 없이 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘."
     )
     messages = [
@@ -80,31 +74,32 @@ async def gpt_generation(
         return f"서버 오류 발생: {str(e)}"
 
 
-def chat2(prompt: str, text: str):
+def chat2(prompt1: str, text: str,outText:str,prompt2:str):
     response = co.chat(
         chat_history=[
-            {"role": "USER", "message": prompt},
+            {"role": "USER", "message": prompt1},
+            {"role": "SYSTEM", "message": outText}
         ],
-        message=text,
+        message=prompt2,
         connectors=[{"id": "web-search"}],
     )
     return response
 
 
 async def cohere_generation(
-    generate_target: str, job_title: str, text: str, comp_info: str
+    generate_target: str, job_title: str, text: str, comp_info: str , outText: str, class_result: str
 ) -> str:
-    prompt = (
+    prompt1 = (
         f"자소서 내용 분석 (직무: {job_title}): {text}\n"
-        "1. 해당 직무에 필요한 경험, 지원 동기 및 포부, 강점, 단점이 얼마나 잘 매치되는지 분석해줘.\n"
-        "2. 누락된 요소나 추가할 내용이 있는지 제안해줘.\n"
-        "3. 빈줄없이 출력해줘\n"
-        "4. 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘.\n"
-        "5. 상단의 모든 내용을 반복해서 출력하지마"
+        "지원 동기 및 포부, 강점, 단점이 얼마나 잘 매치되는지 분석해줘.\n"
+    )
+    prompt2 = (
+        f"앞서 분류된 내용을 잘보고 {class_result}랑 확인해서 없는내용 5문장 제안햊 ㅜ"
+        f"다른 설명 없이 너의 답변을 그대로 자기소개서에 복사 붙여넣기 할 수 있도록, 자기 소개서 본문만 출력해줘."
     )
 
     try:
-        response = chat2(prompt, text)
+        response = chat2(prompt1, text, outText,prompt2)
         return response.text  # response 객체의 text 속성을 반환
     except Exception as e:
         logger.error(f"Cohere 응답 처리 중 오류 발생: {str(e)}")
@@ -196,15 +191,7 @@ def classify_text(text, job_title):
         # print("입사 동기 및 포부 missing.")
         print("generate_target:", generate_target)
     comp_name, comp_info = company_info.get_company_info(job_title)
-    return (
-        generate_target,
-        negative_result,
-        outClass,
-        outList,
-        outText,
-        comp_name,
-        comp_info,
-    )
+    return generate_target, negative_result, outClass, outList, outText, comp_name, comp_info
 
 
 # LSTM으로 작동하는법
@@ -545,17 +532,14 @@ async def classify_text_api(data: dict):
     job_title = data.get("job_title")
     print(job_title)
 
-    (
-        generate_target,
-        negative_result,
-        outClass,
-        outList,
-        outText,
-        comp_name,
-        comp_info,
-    ) = classify_text(text, job_title)
+    generate_target, negative_result, outClass, outList, outText, comp_name, comp_info = (
+        classify_text(text, job_title)
+    )
+    if comp_info == "":
+        comp_info = "가진 인재상이 없습니다"
 
     print(comp_info)
+
 
     # Count the occurrences of each class
     class_count = Counter(outClass)
@@ -622,11 +606,12 @@ async def generate_gpt_cohere_api(data: dict):
     print("text:", text)
 
     gpt_response = await gpt_generation(
-        generate_target, job_title, text, comp_info, outText
+        job_title, text, comp_info, outText,class_result
     )
     cohere_response = await cohere_generation(
-        generate_target, job_title, text, comp_info
-    )
+         generate_target, job_title, text, comp_info,outText, class_result
+     )
+
     return JSONResponse(
         content={"gpt_response": gpt_response, "cohere_response": cohere_response}
     )
@@ -646,9 +631,7 @@ async def generate_vector_db_api(data: dict):
     comp_name = data.get("comp_name")
     comp_info = data.get("comp_info")
 
-    vdb_prompt = await vector_db.vdb_prompt(
-        generate_target, job_title, comp_name, comp_info
-    )
+    vdb_prompt = await vector_db.vdb_prompt(generate_target, job_title, comp_name, comp_info)
     vdb_result = await vector_db.query(vdb_prompt)
     if len(vdb_result) > 0:
         vdb_reponse = vdb_result[0]
