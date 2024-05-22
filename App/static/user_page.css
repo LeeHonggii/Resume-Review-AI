@@ -278,8 +278,6 @@ textarea#mce_full {
   /* height: 22vh; Adjust height automatically based on content */
   line-height: auto;
   /* Adjust line-height for better readability */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
   /* Show up to 3 lines */
   -webkit-box-orient: vertical;
   transition: max-height 0.5s ease;
