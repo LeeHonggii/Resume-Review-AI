@@ -165,37 +165,40 @@
             else throw new Error("Failed to fetch cohere data");
           }).then(data => handleData(data));
 
-          const [vectorDbData, llmData, gptCohereData] = await Promise.all([
-            vectorDbPromise,
-            llmPromise,
-            gptCoherePromise
-          ]);
+        const [vectorDbData, llmData, gptCohereData] = await Promise.all([
+          vectorDbPromise,
+          llmPromise,
+          gptCoherePromise
+        ]);
 
-          const combinedResult = {
-            gptCohereData,
-            classifyData,
-            vectorDbData,
-            llmData,
-          };
+        const combinedResult = {
+          gptCohereData,
+          classifyData,
+          vectorDbData,
+          llmData,
+        };
 
-          await fetch("/save_page_content", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              job_title: jobTitle,
-              text: editorContent,
-              result: JSON.stringify(combinedResult) // Ensure all data is included
-            })
-          });
-        } catch (error) {
-          handleError(error);
-        } finally {
-          submitButton.classList.remove("loading");
-          buttonText.style.display = "block";
-          spinner.style.display = "none";
-        }
+        await fetch("/save_page_content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            job_title: jobTitle,
+            text: editorContent,
+            result: JSON.stringify(combinedResult) // Ensure all data is included
+          })
+        });
 
-      });
+      } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("result").innerHTML = "Error fetching results: " + error.message;
+      } finally {
+        submitButton.classList.remove("loading");
+        buttonText.style.display = "block";
+        spinner.style.display = "none";
+      }
+    });
+
+
       function clearExistingResults() {
         const resultContainer = document.getElementById("result");
         resultContainer.innerHTML = ''; // Clears all children from the result div
@@ -205,9 +208,9 @@
         const keyTranslations = {
           "comp_info": "회사의 인재상",
           "negative_result": "부정적인 표현",
-          "class_result": "분류 결과",
+          "class_result": "분류 모델 결과",
           "vdb_response": "Vector DB 결과",
-          "llm_response": "ME:VISE 결과",
+          "llm_response": "ME:VISE 모델 결과",
           "gpt_response": "GPT 결과",
           "cohere_response": "cohere 결과"
         };
@@ -226,7 +229,7 @@
                 resultDiv.appendChild(newResult);
                 newResult.firstChild.addEventListener('click', function () {
                   const textToCopy = this.getAttribute('data-value');
-                  tinymce.get("mce_full").execCommand('mceInsertContent', false, textToCopy);
+                  tinymce.get("mce_full").execCommand('mceInsertContent', false, `<span style="background-color: #FDE660;">${textToCopy}</span>`);
                 });
               }
             }
