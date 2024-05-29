@@ -86,3 +86,7 @@ initdata
    ```sh
    python App/main.py
    ```
+
+## Demo
+
+![Demo](image/example.gif,"Demo")
