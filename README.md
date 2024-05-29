@@ -40,7 +40,8 @@
 - `App/initdata` : 가진 데이터 
 - `crawling/`: 크롤링 관련 코드
 - `image/`: 이미지 파일
-- `회의록/`: 회의록 파일
+- `sever/`: 만든 sever 파일
+- `Finetune/`:학습에 사용된 코드
 
 
 데이터 폴더는 다음과 같이 구성되어 있습니다. [데이터 폴더 링크](https://drive.google.com/drive/folders/12ngQ94R_sYrp1eFf8T9dcH68SQiIHsLH?usp=share_link)를 통해 접근할 수 있습니다.
