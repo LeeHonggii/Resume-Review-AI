@@ -28,6 +28,11 @@
 }
 ```
 
+### 학습 방법
+
+- [Meta's Fine-Tuning Guide](https://llama.meta.com/docs/how-to-guides/fine-tuning)
+- [참고영상](https://www.youtube.com/watch?v=aQmoog_s8HE)
+- 베이스 모델에 대한 더 자세한 내용은 [Hugging Face 모델 페이지](https://huggingface.co/MLP-KTLim/llama-3-Korean-Bllossom-8B)에서 확인할 수 있습니다
 
 
 ## 프로젝트 구조
@@ -36,7 +41,9 @@
 - `crawling/`: 크롤링 관련 코드
 - `image/`: 이미지 파일
 - `회의록/`: 회의록 파일
-  
+
+
+데이터 폴더는 다음과 같이 구성되어 있습니다. [데이터 폴더 링크](https://drive.google.com/drive/folders/12ngQ94R_sYrp1eFf8T9dcH68SQiIHsLH?usp=share_link)를 통해 접근할 수 있습니다.
 ```
 initdata
 ├── company.xls # 사전 회사 데이터
