@@ -89,4 +89,4 @@ initdata
 
 ## Demo
 
-![Demo](image/example.gif,"Demo")
+![Demo](/image/example.gif,"Demo")
